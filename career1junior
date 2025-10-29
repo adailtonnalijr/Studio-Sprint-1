@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Career Finder for High Schoolers</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f4f8;
+            color: #333;
+        }
+        .hero {
+            background-color: #002664; /* RTX-inspired dark blue */
+            color: white;
+            padding: 120px 0;
+            text-align: center;
+            background-image: url('https://via.placeholder.com/1920x400?text=Hero+Background'); /* Placeholder for high-tech image */
+            background-size: cover;
+            background-position: center;
+        }
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: bold;
+        }
+        .hero p {
+            font-size: 1.8rem;
+        }
+        .navbar {
+            background-color: #002664;
+        }
+        .navbar-brand, .nav-link {
+            color: white !important;
+        }
+        .sidebar {
+            position: fixed;
+            top: 56px; /* Below navbar */
+            right: 0;
+            width: 300px;
+            height: calc(100% - 56px);
+            background-color: #fff;
+            border-left: 1px solid #ddd;
+            padding: 20px;
+            overflow-y: auto;
+            box-shadow: -2px 0 5px rgba(0,0,0,0.1);
+        }
+        .sidebar h5 {
+            color: #002664;
+            margin-bottom: 20px;
+        }
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+        }
+        .sidebar li {
+            margin-bottom: 15px;
+            cursor: pointer;
+            color: #007bff;
+            font-weight: 500;
+        }
+        .sidebar li:hover {
+            color: #0056b3;
+            text-decoration: underline;
+        }
+        .question-container {
+            max-width: 900px;
+            margin: 60px auto;
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        .results-container {
+            max-width: 900px;
+            margin: 60px auto;
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        .card {
+            border: none;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+        }
+        .btn-primary {
+            background-color: #002664;
+            border-color: #002664;
+        }
+        .btn-primary:hover {
+            background-color: #001a4d;
+        }
+        .major-details {
+            display: none;
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Career Finder</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="#" onclick="toggleSidebar()">Saved Profiles</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <div class="hero" id="hero">
+        <div class="container">
+            <h1>Discover Your Dream Career</h1>
+            <p>Our interactive quiz helps high school students explore career fields and majors that align with their interests, strengths, and preferences. Get detailed insights into salary expectations, job titles, and job search resources.</p>
+            <button class="btn btn-light btn-lg" onclick="startQuiz()">Start Quiz</button>
+        </div>
+    </div>
+
+    <!-- Username Input -->
+    <div class="container" id="username-section" style="display: none; max-width: 600px; margin: 60px auto;">
+        <div class="card">
+            <div class="card-body">
+                <h2>Enter Your Username</h2>
+                <input type="text" id="username" class="form-control mb-3" placeholder="Your username">
+                <button class="btn btn-primary" onclick="submitUsername()">Continue</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Questions Section -->
+    <div class="question-container" id="questions-section" style="display: none;">
+        <h2 id="phase-title" class="mb-4"></h2>
+        <div id="question-content" class="mb-4"></div>
+        <button class="btn btn-primary" id="next-btn" onclick="nextQuestion()">Next</button>
+    </div>
+
+    <!-- Results Section -->
+    <div class="results-container" id="results-section" style="display: none;">
+        <h2 id="results-title" class="mb-4"></h2>
+        <div id="results-content"></div>
+    </div>
+
+    <!-- Sidebar for Saved Users -->
+    <div class="sidebar" id="sidebar" style="display: none;">
+        <h5>Saved Profiles</h5>
+        <ul id="saved-users"></ul>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        // Define Fields
+        const fields = ['STEM', 'Arts & Humanities', 'Business & Economics', 'Healthcare & Medicine', 'Social Sciences & Education'];
+
+        // Define Majors grouped by field
+        const majors = {
+            'STEM': [
+                {name: 'Computer Science', jobs: ['Software Developer', 'Data Scientist', 'IT Manager'], salaries: 'Entry: $80k, Mid: $120k, Senior: $160k+', links: 'https://www.linkedin.com/jobs/search/?keywords=software%20developer'},
+                {name: 'Mechanical Engineering', jobs: ['Mechanical Engineer', 'Project Engineer', 'Design Engineer'], salaries: 'Entry: $70k, Mid: $95k, Senior: $130k+', links: 'https://www.linkedin.com/jobs/search/?keywords=mechanical%20engineer'},
+                {name: 'Biology', jobs: ['Biologist', 'Research Scientist', 'Lab Technician'], salaries: 'Entry: $50k, Mid: $80k, Senior: $110k+', links: 'https://www.linkedin.com/jobs/search/?keywords=biologist'},
+                {name: 'Chemistry', jobs: ['Chemist', 'Pharmaceutical Scientist', 'Quality Control Analyst'], salaries: 'Entry: $60k, Mid: $90k, Senior: $120k+', links: 'https://www.linkedin.com/jobs/search/?keywords=chemist'},
+                {name: 'Mathematics', jobs: ['Actuary', 'Statistician', 'Data Analyst'], salaries: 'Entry: $70k, Mid: $100k, Senior: $140k+', links: 'https://www.linkedin.com/jobs/search/?keywords=actuary'}
+            ],
+            'Arts & Humanities': [
+                {name: 'English Literature', jobs: ['Writer', 'Editor', 'Content Strategist'], salaries: 'Entry: $50k, Mid: $70k, Senior: $100k+', links: 'https://www.linkedin.com/jobs/search/?keywords=writer'},
+                {name: 'Fine Arts', jobs: ['Artist', 'Graphic Designer', 'Art Director'], salaries: 'Entry: $45k, Mid: $65k, Senior: $90k+', links: 'https://www.linkedin.com/jobs/search/?keywords=graphic%20designer'},
+                {name: 'History', jobs: ['Historian', 'Museum Curator', 'Archivist'], salaries: 'Entry: $50k, Mid: $70k, Senior: $95k+', links: 'https://www.linkedin.com/jobs/search/?keywords=historian'},
+                {name: 'Philosophy', jobs: ['Ethics Consultant', 'Policy Analyst', 'Professor'], salaries: 'Entry: $60k, Mid: $85k, Senior: $110k+', links: 'https://www.linkedin.com/jobs/search/?keywords=policy%20analyst'},
+                {name: 'Communications', jobs: ['Public Relations Specialist', 'Journalist', 'Marketing Coordinator'], salaries: 'Entry: $50k, Mid: $75k, Senior: $100k+', links: 'https://www.linkedin.com/jobs/search/?keywords=public%20relations'}
+            ],
+            'Business & Economics': [
+                {name: 'Economics', jobs: ['Economist', 'Financial Analyst', 'Policy Advisor'], salaries: 'Entry: $70k, Mid: $100k, Senior: $140k+', links: 'https://www.linkedin.com/jobs/search/?keywords=economist'},
+                {name: 'Finance', jobs: ['Financial Planner', 'Investment Banker', 'Accountant'], salaries: 'Entry: $65k, Mid: $95k, Senior: $130k+', links: 'https://www.linkedin.com/jobs/search/?keywords=financial%20analyst'},
+                {name: 'Accounting', jobs: ['Accountant', 'Auditor', 'Tax Advisor'], salaries: 'Entry: $60k, Mid: $80k, Senior: $110k+', links: 'https://www.linkedin.com/jobs/search/?keywords=accountant'},
+                {name: 'Marketing', jobs: ['Marketing Manager', 'Digital Marketer', 'Brand Strategist'], salaries: 'Entry: $55k, Mid: $85k, Senior: $120k+', links: 'https://www.linkedin.com/jobs/search/?keywords=marketing%20manager'},
+                {name: 'Management', jobs: ['Business Manager', 'Operations Director', 'Consultant'], salaries: 'Entry: $70k, Mid: $100k, Senior: $150k+', links: 'https://www.linkedin.com/jobs/search/?keywords=business%20manager'}
+            ],
+            'Healthcare & Medicine': [
+                {name: 'Nursing', jobs: ['Registered Nurse', 'Nurse Practitioner', 'Clinical Nurse Specialist'], salaries: 'Entry: $70k, Mid: $100k, Senior: $130k+', links: 'https://www.linkedin.com/jobs/search/?keywords=registered%20nurse'},
+                {name: 'Medicine', jobs: ['Physician', 'Surgeon', 'Medical Researcher'], salaries: 'Entry: $200k, Mid: $300k, Senior: $400k+', links: 'https://www.linkedin.com/jobs/search/?keywords=physician'},
+                {name: 'Pharmacy', jobs: ['Pharmacist', 'Pharmaceutical Sales', 'Drug Researcher'], salaries: 'Entry: $120k, Mid: $140k, Senior: $160k+', links: 'https://www.linkedin.com/jobs/search/?keywords=pharmacist'},
+                {name: 'Physical Therapy', jobs: ['Physical Therapist', 'Rehab Specialist', 'Sports Therapist'], salaries: 'Entry: $80k, Mid: $95k, Senior: $110k+', links: 'https://www.linkedin.com/jobs/search/?keywords=physical%20therapist'},
+                {name: 'Public Health', jobs: ['Public Health Advisor', 'Epidemiologist', 'Health Educator'], salaries: 'Entry: $60k, Mid: $85k, Senior: $110k+', links: 'https://www.linkedin.com/jobs/search/?keywords=epidemiologist'}
+            ],
+            'Social Sciences & Education': [
+                {name: 'Psychology', jobs: ['Psychologist', 'Counselor', 'Therapist'], salaries: 'Entry: $70k, Mid: $90k, Senior: $120k+', links: 'https://www.linkedin.com/jobs/search/?keywords=psychologist'},
+                {name: 'Sociology', jobs: ['Sociologist', 'Social Worker', 'Research Analyst'], salaries: 'Entry: $50k, Mid: $70k, Senior: $95k+', links: 'https://www.linkedin.com/jobs/search/?keywords=sociologist'},
+                {name: 'Education', jobs: ['Teacher', 'Education Administrator', 'Curriculum Developer'], salaries: 'Entry: $50k, Mid: $70k, Senior: $100k+', links: 'https://www.linkedin.com/jobs/search/?keywords=teacher'},
+                {name: 'Political Science', jobs: ['Political Scientist', 'Policy Analyst', 'Lobbyist'], salaries: 'Entry: $60k, Mid: $90k, Senior: $120k+', links: 'https://www.linkedin.com/jobs/search/?keywords=political%20scientist'},
+                {name: 'Social Work', jobs: ['Social Worker', 'Case Manager', 'Community Organizer'], salaries: 'Entry: $50k, Mid: $65k, Senior: $85k+', links: 'https://www.linkedin.com/jobs/search/?keywords=social%20worker'}
+            ]
+        };
+
+        // Field Questions (10 questions)
+        const fieldQuestions = [
+            {
+                text: 'What activities make you lose track of time?',
+                type: 'multiple',
+                options: ['Solving puzzles', 'Helping others', 'Creating art', 'Analyzing data', 'Building things'],
+                mapping: {0: {'STEM': 2}, 1: {'Healthcare & Medicine': 2, 'Social Sciences & Education': 1}, 2: {'Arts & Humanities': 2}, 3: {'STEM': 1, 'Business & Economics': 1}, 4: {'STEM': 2}}
+            },
+            {
+                text: 'What\'s most important to you in a career?',
+                type: 'multiple',
+                options: ['High salary potential', 'Helping society', 'Creative freedom', 'Job stability', 'Travel/adventure'],
+                mapping: {0: {'Business & Economics': 2}, 1: {'Social Sciences & Education': 2, 'Healthcare & Medicine': 2}, 2: {'Arts & Humanities': 2}, 3: {'Business & Economics': 1, 'Healthcare & Medicine': 1}, 4: {'Business & Economics': 1, 'Arts & Humanities': 1}}
+            },
+            {
+                text: 'How much interaction with people do you want in your daily work? (1: Minimal, 5: Constant)',
+                type: 'scale',
+                min: 1,
+                max: 5,
+                mapping: value => {
+                    let scores = {};
+                    if (value <= 2) scores['STEM'] = 2;
+                    else if (value >= 4) scores['Healthcare & Medicine'] = 2, scores['Social Sciences & Education'] = 2;
+                    else scores['Business & Economics'] = 1;
+                    return scores;
+                }
+            },
+            {
+                text: 'Where do you see yourself working?',
+                type: 'multiple',
+                options: ['Office/corporate setting', 'Outdoors/fieldwork', 'Lab/research facility', 'Remote/flexible', 'Community/non-profit'],
+                mapping: {0: {'Business & Economics': 2}, 1: {'STEM': 1}, 2: {'STEM': 2, 'Healthcare & Medicine': 1}, 3: {'STEM': 1, 'Business & Economics': 1}, 4: {'Social Sciences & Education': 2}}
+            },
+            {
+                text: 'What are your favorite classes in school? (Choose up to 3)',
+                type: 'multi-select',
+                options: ['Math', 'Science', 'English', 'History', 'Art', 'Business', 'Health/PE'],
+                max: 3,
+                mapping: {0: {'STEM': 2}, 1: {'STEM': 2}, 2: {'Arts & Humanities': 2}, 3: {'Arts & Humanities': 1, 'Social Sciences & Education': 1}, 4: {'Arts & Humanities': 2}, 5: {'Business & Economics': 2}, 6: {'Healthcare & Medicine': 2}}
+            },
+            {
+                text: 'What classes are you best at? (Choose up to 3)',
+                type: 'multi-select',
+                options: ['Math', 'Science', 'English', 'History', 'Art', 'Business', 'Health/PE'],
+                max: 3,
+                mapping: {0: {'STEM': 2}, 1: {'STEM': 2}, 2: {'Arts & Humanities': 2}, 3: {'Arts & Humanities': 1, 'Social Sciences & Education': 1}, 4: {'Arts & Humanities': 2}, 5: {'Business & Economics': 2}, 6: {'Healthcare & Medicine': 2}}
+            },
+            {
+                text: 'I enjoy working with numbers. (1: Strongly Disagree, 5: Strongly Agree)',
+                type: 'scale',
+                min: 1,
+                max: 5,
+                mapping: value => ({'STEM': value > 3 ? 2 : 0, 'Business & Economics': value > 3 ? 2 : 0})
+            },
+            {
+                text: 'I like reading and writing. (1: Strongly Disagree, 5: Strongly Agree)',
+                type: 'scale',
+                min: 1,
+                max: 5,
+                mapping: value => ({'Arts & Humanities': value > 3 ? 2 : 0, 'Social Sciences & Education': value > 3 ? 1 : 0})
+            },
+            {
+                text: 'I want to make a difference in people\'s lives. (1: Strongly Disagree, 5: Strongly Agree)',
+                type: 'scale',
+                min: 1,
+                max: 5,
+                mapping: value => ({'Healthcare & Medicine': value > 3 ? 2 : 0, 'Social Sciences & Education': value > 3 ? 2 : 0})
+            },
+            {
+                text: 'I prefer creative projects over analytical ones. (1: Strongly Disagree, 5: Strongly Agree)',
+                type: 'scale',
+                min: 1,
+                max: 5,
+                mapping: value => ({'Arts & Humanities': value > 3 ? 2 : 0, 'STEM': value < 3 ? 2 : 0})
+            }
+        ];
+
+        // Tailored Major Questions per Field
+        const majorQuestionsByField = {
+            'STEM': [
+                {
+                    text: 'What do you prefer in STEM?',
+                    type: 'multiple',
+                    options: ['Building physical things', 'Coding and software', 'Working with numbers and models', 'Experiments with living things', 'Chemical reactions and materials'],
+                    mapping: {0: {'Mechanical Engineering': 2}, 1: {'Computer Science': 2}, 2: {'Mathematics': 2}, 3: {'Biology': 2}, 4: {'Chemistry': 2}}
+                },
+                {
+                    text: 'How hands-on do you want your work? (1: Theoretical, 5: Practical building)',
+                    type: 'scale',
+                    min: 1,
+                    max: 5,
+                    mapping: value => {
+                        let scores = {};
+                        if (value >= 4) scores['Mechanical Engineering'] = 2;
+                        if (value <= 2) scores['Mathematics'] = 2;
+                        if (value == 3) scores['Computer Science'] = 1, scores['Biology'] = 1, scores['Chemistry'] = 1;
+                        return scores;
+                    }
+                },
+                {
+                    text: 'I enjoy programming. (1: Strongly Disagree, 5: Strongly Agree)',
+                    type: 'scale',
+                    min: 1,
+                    max: 5,
+                    mapping: value => ({'Computer Science': value > 3 ? 2 : 0})
+                },
+                {
+                    text: 'I like biology and life sciences. (1: Strongly Disagree, 5: Strongly Agree)',
+                    type: 'scale',
+                    min: 1,
+                    max: 5,
+                    mapping: value => ({'Biology': value > 3 ? 2 : 0})
+                },
+                {
+                    text: 'I prefer math and statistics. (1: Strongly Disagree, 5: Strongly Agree)',
+                    type: 'scale',
+                    min: 1,
+                    max: 5,
+                    mapping: value => ({'Mathematics': value > 3 ? 2 : 0})
+                },
+                {
+                    text: 'Chemistry experiments excite me. (1: Strongly Disagree, 5: Strongly Agree)',
+                    type: 'scale',
+                    min: 1,
+                    max: 5,
+                    mapping: value => ({'Chemistry': value > 3 ? 2 : 0})
+                },
+                {
+                    text: 'I want to design machines. (1: Strongly Disagree, 5: Strongly Agree)',
+                    type: 'scale',
+                    min: 1,
+                    max: 5,
+                    mapping: value => ({'Mechanical Engineering': value > 3 ? 2 : 0})
+                },
+                {
+                    text: 'What lab setting do you prefer?',
+                    type: 'multiple',
+                    options: ['Computer lab', 'Biology lab', 'Chemistry lab', 'Engineering workshop', 'Math office'],
+                    mapping: {0: {'Computer Science': 2}, 1: {'Biology': 2}, 2: {'Chemistry': 2}, 3: {'Mechanical Engineering': 2}, 4: {'Mathematics': 2}}
+                },
+                {
+                    text: 'How much data analysis? (1: None, 5: A lot)',
+                    type: 'scale',
+                    min: 1,
+                    max: 5,
+                    mapping: value => ({'Mathematics': value > 3 ? 2 : 0, 'Computer Science': value > 3 ? 1 : 0})
+                },
+                {
+                    text: 'Interested in environmental science? (1: Not at all, 5: Very)',
+                    type: 'scale',
+                    min: 1,
+                    max: 5,
+                    mapping: value => ({'Biology': value > 3 ? 1 : 0, 'Chemistry': value > 3 ? 1 : 0})
+                }
+            ],
+            'Arts & Humanities': [
+                {
+                    text: 'What aspect of arts interests you?',
+                    type: 'multiple',
+                    options: ['Writing and literature', 'Visual arts', 'Historical studies', 'Philosophical thinking', 'Communication and media'],
+                    mapping: {0: {'English Literature': 2}, 1: {'Fine Arts': 2}, 2: {'History': 2}, 3: {'Philosophy': 2}, 4: {'Communications': 2}}
+                },
+                {
+                    text: 'How creative do you want to be? (1: Structured, 5: Free-form)',
+                    type: 'scale',
+                    min: 1,
+                    max: 5,
+                    mapping: value => {
+                        let scores = {};
+                        if (value >= 4) scores['Fine Arts'] = 2;
+                        if (value <= 2) scores['History'] = 2;
+                        return scores;
+                    }
+                },
+                // Add 8 more similar questions tailored to Arts & Humanities
+                {
+                    text: 'I enjoy reading books. (1: Strongly Disagree, 5: Strongly Agree)',
+                    type: 'scale',
+                    min: 1,
+                    max: 5,
+                    mapping: value => ({'English Literature': value > 3 ? 2 : 0})
+                },
+                {
+                    text: 'I like drawing or painting. (1: Strongly Disagree, 5: Strongly Agree)',
+                    type: 'scale',
+                    min: 1,
+                    max: 5,
+                    mapping: value => ({'Fine Arts': value > 3 ? 2 : 0})
+                },
+                {
+                    text: 'History fascinates me. (1: Strongly Disagree, 5: Strongly Agree)',
+                    type: 'scale',
+                    min: 1,
+                    max: 5,
+                    mapping: value => ({'History': value > 3 ? 2 : 0})
+                },
+                {
+                    text: 'I ponder ethical questions. (1: Strongly Disagree, 5: Strongly Agree)',
+                    type: 'scale',
+                    min: 1,
+                    max: 5,
+                    mapping: value => ({'Philosophy': value > 3 ? 2 : 0})
+                },
+                {
+                    text: 'I like public speaking. (1: Strongly Disagree, 5: Strongly Agree)',
+                    type: 'scale',
+                    min: 1,
+                    max: 5,
+                    mapping: value => ({'Communications': value > 3 ? 2 : 0})
+                },
+                {
+                    text: 'Preferred medium?',
+                    type: 'multiple',
+                    options: ['Books', 'Canvas', 'Archives', 'Debates', 'Media'],
+                    mapping: {0: {'English Literature': 2}, 1: {'Fine Arts': 2}, 2: {'History': 2}, 3: {'Philosophy': 2}, 4: {'Communications': 2}}
+                },
+                {
+                    text: 'How much writing? (1: Minimal, 5: Extensive)',
+                    type: 'scale',
+                    min: 1,
+                    max: 5,
+                    mapping: value => ({'English Literature': value > 3 ? 2 : 0, 'Philosophy': value > 3 ? 1 : 0})
+                },
+                {
+                    text: 'Interested in culture? (1: Not at all, 5: Very)',
+                    type: 'scale',
+                    min: 1,
+                    max: 5,
+                    mapping: value => ({'History': value > 3 ? 1 : 0, 'Communications': value > 3 ? 1 : 0})
+                }
+            ],
+            'Business & Economics': [
+                {
+                    text: 'What in business excites you?',
+                    type: 'multiple',
+                    options: ['Economic theories', 'Financial markets', 'Accounting numbers', 'Marketing strategies', 'Managing teams'],
+                    mapping: {0: {'Economics': 2}, 1: {'Finance': 2}, 2: {'Accounting': 2}, 3: {'Marketing': 2}, 4: {'Management': 2}}
+                },
+                // Add similar for others
+                {
+                    text: 'Risk level preference? (1: Low, 5: High)',
+                    type: 'scale',
+                    min: 1,
+                    max: 5,
+                    mapping: value => {
+                        let scores = {};
+                        if (value >= 4) scores['Finance'] = 2;
+                        if (value <= 2) scores['Accounting'] = 2;
+                        return scores;
+                    }
+                },
+                {
+                    text: 'I like economics. (1: Strongly Disagree, 5: Strongly Agree)',
+                    type: 'scale',
+                    min: 1,
+                    max: 5,
+                    mapping: value => ({'Economics': value > 3 ? 2 : 0})
+                },
+                {
+                    text: 'Finance interests me. (1: Strongly Disagree, 5: Strongly Agree)',
+                    type: 'scale',
+                    min: 1,
+                    max: 5,
+                    mapping: value => ({'Finance': value > 3 ? 2 : 0})
+                },
+                {
+                    text: 'Accounting is for me. (1: Strongly Disagree, 5: Strongly Agree)',
+                    type: 'scale',
+                    min: 1,
+                    max: 5,
+                    mapping: value => ({'Accounting': value > 3 ? 2 : 0})
+                },
+                {
+                    text: 'I enjoy marketing. (1: Strongly Disagree, 5: Strongly Agree)',
+                    type: 'scale',
+                    min: 1,
+                    max: 5,
+                    mapping: value => ({'Marketing': value > 3 ? 2 : 0})
+                },
+                {
+                    text: 'Leadership appeals to me. (1: Strongly Disagree, 5: Strongly Agree)',
+                    type: 'scale',
+                    min: 1,
+                    max: 5,
+                    mapping: value => ({'Management': value > 3 ? 2 : 0})
+                },
+                {
+                    text: 'Preferred area?',
+                    type: 'multiple',
+                    options: ['Policy', 'Investing', 'Auditing', 'Advertising', 'Operations'],
+                    mapping: {0: {'Economics': 2}, 1: {'Finance': 2}, 2: {'Accounting': 2}, 3: {'Marketing': 2}, 4: {'Management': 2}}
+                },
+                {
+                    text: 'How analytical? (1: Creative, 5: Data-driven)',
+                    type: 'scale',
+                    min: 1,
+                    max: 5,
+                    mapping: value => ({'Economics': value > 3 ? 2 : 0, 'Accounting': value > 3 ? 1 : 0})
+                },
+                {
+                    text: 'Interested in global markets? (1: Not at all, 5: Very)',
+                    type: 'scale',
+                    min: 1,
+                    max: 5,
+                    mapping: value => ({'Finance': value > 3 ? 1 : 0, 'Economics': value > 3 ? 1 : 0})
+                }
+            ],
+            'Healthcare & Medicine': [
+                {
+                    text: 'What in healthcare?',
+                    type: 'multiple',
+                    options: ['Nursing care', 'Doctoring', 'Pharmacy', 'Physical rehab', 'Public health policy'],
+                    mapping: {0: {'Nursing': 2}, 1: {'Medicine': 2}, 2: {'Pharmacy': 2}, 3: {'Physical Therapy': 2}, 4: {'Public Health': 2}}
+                },
+                // Similar
+                {
+                    text: 'Patient interaction level? (1: Low, 5: High)',
+                    type: 'scale',
+                    min: 1,
+                    max: 5,
+                    mapping: value => {
+                        let scores = {};
+                        if (value >= 4) scores['Nursing'] = 2, scores['Medicine'] = 2;
+                        if (value <= 2) scores['Pharmacy'] = 2;
+                        return scores;
+                    }
+                },
+                {
+                    text: 'Interested in nursing. (1: Strongly Disagree, 5: Strongly Agree)',
+                    type: 'scale',
+                    min: 1,
+                    max: 5,
+                    mapping: value => ({'Nursing': value > 3 ? 2 : 0})
+                },
+                {
+                    text: 'Medicine as a doctor. (1: Strongly Disagree, 5: Strongly Agree)',
+                    type: 'scale',
+                    min: 1,
+                    max: 5,
+                    mapping: value => ({'Medicine': value > 3 ? 2 : 0})
+                },
+                {
+                    text: 'Pharmacy and drugs. (1: Strongly Disagree, 5: Strongly Agree)',
+                    type: 'scale',
+                    min: 1,
+                    max: 5,
+                    mapping: value => ({'Pharmacy': value > 3 ? 2 : 0})
+                },
+                {
+                    text: 'Physical therapy. (1: Strongly Disagree, 5: Strongly Agree)',
+                    type: 'scale',
+                    min: 1,
+                    max: 5,
+                    mapping: value => ({'Physical Therapy': value > 3 ? 2 : 0})
+                },
+                {
+                    text: 'Public health. (1: Strongly Disagree, 5: Strongly Agree)',
+                    type: 'scale',
+                    min: 1,
+                    max: 5,
+                    mapping: value => ({'Public Health': value > 3 ? 2 : 0})
+                },
+                {
+                    text: 'Preferred setting?',
+                    type: 'multiple',
+                    options: ['Hospital bedside', 'Clinic diagnosis', 'Pharmacy counter', 'Rehab gym', 'Community programs'],
+                    mapping: {0: {'Nursing': 2}, 1: {'Medicine': 2}, 2: {'Pharmacy': 2}, 3: {'Physical Therapy': 2}, 4: {'Public Health': 2}}
+                },
+                {
+                    text: 'How scientific? (1: Practical, 5: Research)',
+                    type: 'scale',
+                    min: 1,
+                    max: 5,
+                    mapping: value => ({'Medicine': value > 3 ? 2 : 0, 'Pharmacy': value > 3 ? 1 : 0})
+                },
+                {
+                    text: 'Interested in epidemiology? (1: Not at all, 5: Very)',
+                    type: 'scale',
+                    min: 1,
+                    max: 5,
+                    mapping: value => ({'Public Health': value > 3 ? 2 : 0})
+                }
+            ],
+            'Social Sciences & Education': [
+                {
+                    text: 'What in social sciences?',
+                    type: 'multiple',
+                    options: ['Psychology and mind', 'Sociology and society', 'Teaching', 'Politics', 'Social services'],
+                    mapping: {0: {'Psychology': 2}, 1: {'Sociology': 2}, 2: {'Education': 2}, 3: {'Political Science': 2}, 4: {'Social Work': 2}}
+                },
+                // Similar
+                {
+                    text: 'Helping level? (1: Individual, 5: Community)',
+                    type: 'scale',
+                    min: 1,
+                    max: 5,
+                    mapping: value => {
+                        let scores = {};
+                        if (value <= 2) scores['Psychology'] = 2;
+                        if (value >= 4) scores['Sociology'] = 2, scores['Social Work'] = 2;
+                        return scores;
+                    }
+                },
+                {
+                    text: 'Psychology interests me. (1: Strongly Disagree, 5: Strongly Agree)',
+                    type: 'scale',
+                    min: 1,
+                    max: 5,
+                    mapping: value => ({'Psychology': value > 3 ? 2 : 0})
+                },
+                {
+                    text: 'Sociology and groups. (1: Strongly Disagree, 5: Strongly Agree)',
+                    type: 'scale',
+                    min: 1,
+                    max: 5,
+                    mapping: value => ({'Sociology': value > 3 ? 2 : 0})
+                },
+                {
+                    text: 'Teaching kids. (1: Strongly Disagree, 5: Strongly Agree)',
+                    type: 'scale',
+                    min: 1,
+                    max: 5,
+                    mapping: value => ({'Education': value > 3 ? 2 : 0})
+                },
+                {
+                    text: 'Politics and policy. (1: Strongly Disagree, 5: Strongly Agree)',
+                    type: 'scale',
+                    min: 1,
+                    max: 5,
+                    mapping: value => ({'Political Science': value > 3 ? 2 : 0})
+                },
+                {
+                    text: 'Social work helping. (1: Strongly Disagree, 5: Strongly Agree)',
+                    type: 'scale',
+                    min: 1,
+                    max: 5,
+                    mapping: value => ({'Social Work': value > 3 ? 2 : 0})
+                },
+                {
+                    text: 'Preferred role?',
+                    type: 'multiple',
+                    options: ['Counselor', 'Researcher', 'Teacher', 'Analyst', 'Organizer'],
+                    mapping: {0: {'Psychology': 2}, 1: {'Sociology': 2}, 2: {'Education': 2}, 3: {'Political Science': 2}, 4: {'Social Work': 2}}
+                },
+                {
+                    text: 'How research-oriented? (1: Practical, 5: Theoretical)',
+                    type: 'scale',
+                    min: 1,
+                    max: 5,
+                    mapping: value => ({'Sociology': value > 3 ? 2 : 0, 'Political Science': value > 3 ? 1 : 0})
+                },
+                {
+                    text: 'Interested in community outreach? (1: Not at all, 5: Very)',
+                    type: 'scale',
+                    min: 1,
+                    max: 5,
+                    mapping: value => ({'Social Work': value > 3 ? 2 : 0, 'Education': value > 3 ? 1 : 0})
+                }
+            ]
+        };
+
+        let currentPhase = 'hero';
+        let username = '';
+        let currentQuestion = 0;
+        let answers = [];
+        let fieldScores = {};
+        let majorScores = {};
+        let selectedField = '';
+        let currentMajorQuestions = [];
+        let savedProfiles = JSON.parse(localStorage.getItem('profiles')) || [];
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.style.display = sidebar.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function startQuiz() {
+            document.getElementById('hero').style.display = 'none';
+            document.getElementById('username-section').style.display = 'block';
+            currentPhase = 'username';
+        }
+
+        function submitUsername() {
+            username = document.getElementById('username').value.trim();
+            if (!username) return alert('Please enter a username');
+            document.getElementById('username-section').style.display = 'none';
+            startFieldQuestions();
+        }
+
+        function startFieldQuestions() {
+            currentPhase = 'field_questions';
+            currentQuestion = 0;
+            answers = [];
+            fields.forEach(f => fieldScores[f] = 0);
+            document.getElementById('questions-section').style.display = 'block';
+            document.getElementById('phase-title').innerText = 'Field Discovery Questions';
+            loadQuestion(fieldQuestions[currentQuestion]);
+        }
+
+        function loadQuestion(question) {
+            const content = document.getElementById('question-content');
+            content.innerHTML = `<p class="lead">${question.text}</p>`;
+            if (question.type === 'multiple') {
+                question.options.forEach((opt, idx) => {
+                    content.innerHTML += `<div class="form-check mb-2"><input type="radio" name="answer" value="${idx}" class="form-check-input" id="opt${idx}"><label class="form-check-label" for="opt${idx}">${opt}</label></div>`;
+                });
+            } else if (question.type === 'scale') {
+                content.innerHTML += `<div class="d-flex align-items-center"><input type="range" id="scale" min="${question.min}" max="${question.max}" value="3" class="form-range flex-grow-1 me-3"><span id="scale-value">3</span></div>`;
+                document.getElementById('scale').oninput = e => document.getElementById('scale-value').innerText = e.target.value;
+            } else if (question.type === 'multi-select') {
+                question.options.forEach((opt, idx) => {
+                    content.innerHTML += `<div class="form-check mb-2"><input type="checkbox" name="answer" value="${idx}" class="form-check-input" id="opt${idx}"><label class="form-check-label" for="opt${idx}">${opt}</label></div>`;
+                });
+            }
+            document.getElementById('next-btn').innerText = currentQuestion === (currentPhase === 'field_questions' ? fieldQuestions.length - 1 : currentMajorQuestions.length - 1) ? 'Submit' : 'Next';
+        }
+
+        function nextQuestion() {
+            let answer;
+            const questions = currentPhase === 'field_questions' ? fieldQuestions : currentMajorQuestions;
+            const question = questions[currentQuestion];
+            if (question.type === 'multiple') {
+                answer = document.querySelector('input[name="answer"]:checked')?.value;
+            } else if (question.type === 'scale') {
+                answer = document.getElementById('scale').value;
+            } else if (question.type === 'multi-select') {
+                answer = Array.from(document.querySelectorAll('input[name="answer"]:checked')).map(cb => cb.value);
+            }
+            if (answer === undefined || (Array.isArray(answer) && answer.length === 0)) return alert('Please select an answer');
+            answers.push(answer);
+
+            // Score
+            if (currentPhase === 'field_questions') {
+                scoreAnswer(question, answer, fieldScores);
+            } else {
+                scoreAnswer(question, answer, majorScores);
+            }
+
+            currentQuestion++;
+            if (currentQuestion < questions.length) {
+                loadQuestion(questions[currentQuestion]);
+            } else {
+                if (currentPhase === 'field_questions') {
+                    showFieldResults();
+                } else {
+                    showMajorResults();
+                }
+            }
+        }
+
+        function scoreAnswer(question, answer, scores) {
+            let addScores;
+            if (question.mapping instanceof Function) {
+                addScores = question.mapping(parseInt(answer));
+            } else if (question.type === 'multi-select') {
+                answer.forEach(idx => {
+                    const map = question.mapping[parseInt(idx)];
+                    for (let key in map) scores[key] = (scores[key] || 0) + map[key];
+                });
+                return;
+            } else if (answer !== undefined) {
+                addScores = question.mapping[parseInt(answer)];
+            }
+            for (let key in addScores) scores[key] = (scores[key] || 0) + addScores[key];
+        }
+
+        function showFieldResults() {
+            document.getElementById('questions-section').style.display = 'none';
+            document.getElementById('results-section').style.display = 'block';
+            document.getElementById('results-title').innerText = 'Recommended Fields';
+            const sortedFields = [...fields].sort((a,b) => fieldScores[b] - fieldScores[a]).slice(0,3);
+            let content = '';
+            sortedFields.forEach((f, idx) => {
+                content += `<div class="card mb-3"><div class="card-body"><h5 class="card-title">${f} (Score: ${fieldScores[f]})</h5><p class="card-text">Why: Based on your interests in areas like ${idx === 0 ? 'technology and analysis' : 'creativity or helping others'}.</p><button class="btn btn-primary" onclick="selectField('${f}')">Select this field</button></div></div>`;
+            });
+            document.getElementById('results-content').innerHTML = content;
+            currentPhase = 'field_results';
+        }
+
+        function selectField(field) {
+            selectedField = field;
+            currentMajorQuestions = majorQuestionsByField[field];
+            document.getElementById('results-section').style.display = 'none';
+            currentQuestion = 0;
+            answers = [];
+            majorScores = {};
+            majors[field].forEach(m => majorScores[m.name] = 0);
+            document.getElementById('questions-section').style.display = 'block';
+            document.getElementById('phase-title').innerText = `Major Discovery in ${field}`;
+            loadQuestion(currentMajorQuestions[currentQuestion]);
+            currentPhase = 'major_questions';
+        }
+
+        function showMajorResults() {
+            document.getElementById('questions-section').style.display = 'none';
+            document.getElementById('results-section').style.display = 'block';
+            document.getElementById('results-title').innerText = 'Recommended Majors';
+            const fieldMajors = majors[selectedField].map(m => ({...m, score: majorScores[m.name] || 0}));
+            const sortedMajors = fieldMajors.sort((a,b) => b.score - a.score);
+            let content = '';
+            sortedMajors.forEach(m => {
+                content += `<div class="card mb-3"><div class="card-body"><h5 class="card-title">${m.name} (Score: ${m.score})</h5><button class="btn btn-info" onclick="showMajorDetails('${m.name.replace(/\s/g,'-')}')">View Details</button><div id="details-${m.name.replace(/\s/g,'-')}" class="major-details mt-3"><p><strong>Jobs:</strong> ${m.jobs.join(', ')}</p><p><strong>Salary Progress:</strong> ${m.salaries}</p><p><a href="${m.links}" target="_blank">Search on LinkedIn</a></p><p><a href="https://www.indeed.com/q-${m.name.replace(/\s/g,'-')}-jobs.html" target="_blank">Search on Indeed</a></p></div></div></div>`;
+            });
+            document.getElementById('results-content').innerHTML = content;
+            saveProfile();
+            toggleSidebar();
+        }
+
+        function showMajorDetails(id) {
+            const details = document.getElementById(`details-${id}`);
+            details.style.display = details.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function saveProfile() {
+            const profile = {username, selectedField, majorResults: majorScores};
+            savedProfiles.push(profile);
+            localStorage.setItem('profiles', JSON.stringify(savedProfiles));
+            loadSavedUsers();
+        }
+
+        function loadSavedUsers() {
+            const ul = document.getElementById('saved-users');
+            ul.innerHTML = '';
+            savedProfiles.forEach((p, idx) => {
+                const li = document.createElement('li');
+                li.innerText = p.username;
+                li.onclick = () => loadProfile(p);
+                ul.appendChild(li);
+            });
+        }
+
+        function loadProfile(profile) {
+            selectedField = profile.selectedField;
+            majorScores = profile.majorResults;
+            document.getElementById('hero').style.display = 'none';
+            document.getElementById('username-section').style.display = 'none';
+            document.getElementById('questions-section').style.display = 'none';
+            document.getElementById('results-section').style.display = 'block';
+            showMajorResults();
+        }
+
+        // Load saved on init
+        loadSavedUsers();
+    </script>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
