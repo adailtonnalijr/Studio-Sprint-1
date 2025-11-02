@@ -1,0 +1,3012 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CareerCompass - Discover Your Dream Career</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary-color: #8b5cf6;
+            --accent-color: #ec4899;
+            --background: #0f172a;
+            --surface: #1e293b;
+            --surface-light: #334155;
+            --text-primary: #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --success: #10b981;
+            --warning: #f59e0b;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--background);
+            color: var(--text-primary);
+            line-height: 1.6;
+            transition: background 1s ease;
+        }
+
+        body.celebration {
+            animation: celebrationBackground 3s ease-in-out;
+        }
+
+        @keyframes celebrationBackground {
+            0%, 100% { background: var(--background); }
+            25% { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+            50% { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+            75% { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Fireworks Canvas */
+        #fireworksCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9999;
+            display: none;
+        }
+
+        #fireworksCanvas.active {
+            display: block;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: var(--surface);
+            border-right: 1px solid var(--surface-light);
+            padding: 30px 20px;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar.hidden {
+            transform: translateX(-100%);
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            background-clip: text; /* Standard property for compatibility */
+            color: transparent; /* Ensure text is transparent to see the background */
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 40px;
+        }
+
+        .user-profile {
+            background: var(--surface-light);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+        }
+
+        .user-profile h3 {
+            font-size: 14px;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .username-display {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .saved-sessions {
+            margin-top: 30px;
+        }
+
+        .saved-sessions h3 {
+            font-size: 14px;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .session-item {
+            background: var(--surface-light);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid transparent;
+        }
+
+        .session-item:hover {
+            border-color: var(--primary-color);
+            transform: translateX(5px);
+        }
+
+        .session-name {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .session-date {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .new-session-btn {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            font-weight: 600;
+            margin-top: 20px;
+            transition: transform 0.2s;
+        }
+
+        .new-session-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .clear-sessions-btn {
+            background: var(--warning);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            font-weight: 600;
+            margin-top: 10px;
+            transition: transform 0.2s;
+        }
+
+        .clear-sessions-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 40px;
+        }
+
+        .main-content.full-width {
+            margin-left: 0;
+        }
+
+        /* Hero Section */
+        .hero {
+            text-align: center;
+            padding: 60px 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .hero h1 {
+            font-size: 48px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            -webkit-background-clip: text;
+            background-clip: text; /* Standard property for compatibility */
+            color: transparent; /* Ensure text is transparent to see the background */
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 20px;
+        }
+
+        .hero p {
+            font-size: 20px;
+            color: var(--text-secondary);
+            margin-bottom: 40px;
+            line-height: 1.8;
+        }
+
+        .hero-features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 40px;
+        }
+
+        .feature-card {
+            background: var(--surface);
+            padding: 25px;
+            border-radius: 12px;
+            border: 1px solid var(--surface-light);
+        }
+
+        .feature-icon {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .feature-title {
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .feature-desc {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        /* Username Input */
+        .username-section {
+            max-width: 500px;
+            margin: 80px auto;
+            background: var(--surface);
+            padding: 50px;
+            border-radius: 16px;
+            border: 1px solid var(--surface-light);
+        }
+
+        .username-section h2 {
+            font-size: 28px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .username-section p {
+            color: var(--text-secondary);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .input-group {
+            margin-bottom: 25px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 15px;
+            background: var(--background);
+            border: 2px solid var(--surface-light);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        /* Questions Section */
+        .question-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .progress-container {
+            margin-bottom: 40px;
+        }
+
+        .progress-bar-container {
+            background: var(--surface);
+            height: 8px;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .question-card {
+            background: var(--surface);
+            padding: 40px;
+            border-radius: 16px;
+            border: 1px solid var(--surface-light);
+            margin-bottom: 30px;
+        }
+
+        .question-number {
+            color: var(--primary-color);
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .question-text {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 30px;
+        }
+
+        .options-grid {
+            display: grid;
+            gap: 15px;
+        }
+
+        .option-button {
+            background: var(--surface-light);
+            border: 2px solid transparent;
+            padding: 20px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: left;
+            color: var(--text-primary);
+            font-size: 16px;
+        }
+
+        .option-button:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+        }
+
+        .option-button.selected {
+            background: var(--primary-color);
+            border-color: var(--primary-color);
+            color: white;
+        }
+
+        .navigation-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .btn-primary, .btn-secondary {
+            padding: 15px 40px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3);
+        }
+
+        .btn-secondary {
+            background: var(--surface-light);
+            color: var(--text-primary);
+        }
+
+        .btn-secondary:hover {
+            background: var(--surface);
+        }
+
+        /* Results Section */
+        .results-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .results-header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .results-header h2 {
+            font-size: 42px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            animation: slideDown 0.6s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .results-header p {
+            color: var(--text-secondary);
+            font-size: 18px;
+        }
+
+        .result-card {
+            background: var(--surface);
+            padding: 30px;
+            border-radius: 16px;
+            border: 2px solid var(--surface-light);
+            margin-bottom: 20px;
+            transition: all 0.3s;
+            cursor: pointer;
+            animation: fadeInUp 0.6s ease backwards;
+        }
+
+        .result-card:nth-child(1) { animation-delay: 0.1s; }
+        .result-card:nth-child(2) { animation-delay: 0.2s; }
+        .result-card:nth-child(3) { animation-delay: 0.3s; }
+        .result-card:nth-child(4) { animation-delay: 0.4s; }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .result-card:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .result-rank {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .result-title {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .result-match {
+            color: var(--success);
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .result-description {
+            color: var(--text-secondary);
+            line-height: 1.8;
+            margin-bottom: 20px;
+        }
+
+        .result-reasons {
+            background: var(--background);
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 20px;
+        }
+
+        .result-reasons h4 {
+            color: var(--primary-color);
+            margin-bottom: 12px;
+            font-size: 16px;
+        }
+
+        .result-reasons ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .result-reasons li {
+            color: var(--text-secondary);
+            padding: 8px 0;
+            padding-left: 25px;
+            position: relative;
+        }
+
+        .result-reasons li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: var(--success);
+            font-weight: bold;
+        }
+
+        .back-button {
+            display: inline-block;
+            color: var(--primary-color);
+            text-decoration: none;
+            margin-bottom: 30px;
+            font-weight: 600;
+            transition: transform 0.2s;
+        }
+
+        .back-button:hover {
+            transform: translateX(-5px);
+        }
+
+        /* Career Details */
+        .career-details {
+            background: var(--surface);
+            padding: 40px;
+            border-radius: 16px;
+            border: 1px solid var(--surface-light);
+            margin-bottom: 30px;
+        }
+
+        .career-header {
+            margin-bottom: 30px;
+        }
+
+        .career-title {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .career-subtitle {
+            color: var(--text-secondary);
+            font-size: 18px;
+        }
+
+        .career-section {
+            margin-bottom: 40px;
+        }
+
+        .career-section h3 {
+            font-size: 20px;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+        }
+
+        .salary-timeline {
+            display: grid;
+            gap: 15px;
+        }
+
+        .salary-stage {
+            background: var(--background);
+            padding: 20px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .salary-stage-name {
+            font-weight: 600;
+        }
+
+        .salary-stage-amount {
+            color: var(--success);
+            font-weight: 700;
+            font-size: 20px;
+        }
+
+        .job-titles-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .job-title-tag {
+            background: var(--background);
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 14px;
+            border: 1px solid var(--surface-light);
+        }
+
+        .external-links {
+            display: grid;
+            gap: 15px;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        }
+
+        .external-link {
+            background: var(--primary-color);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            text-align: center;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .external-link:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .hero h1 {
+                font-size: 32px;
+            }
+
+            .hero p {
+                font-size: 16px;
+            }
+
+            .question-text {
+                font-size: 20px;
+            }
+
+            .result-title {
+                font-size: 22px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Fireworks Canvas -->
+    <canvas id="fireworksCanvas"></canvas>
+
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="logo">🧭 CareerCompass</div>
+            
+            <div class="user-profile hidden" id="userProfile">
+                <h3>Current User</h3>
+                <div class="username-display" id="usernameDisplay"></div>
+            </div>
+
+            <div class="saved-sessions">
+                <h3>Saved Sessions</h3>
+                <div id="savedSessionsList"></div>
+            </div>
+
+            <button class="new-session-btn" onclick="startNewSession()">+ New Assessment</button>
+            <button class="clear-sessions-btn" onclick="clearSavedSessions()">Clear Saved Sessions</button>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content" id="mainContent">
+            <!-- Hero Section -->
+            <section id="heroSection" class="hero">
+                <h1>Discover Your Dream Career</h1>
+                <p>Answer a few simple questions and let our AI-powered platform guide you to the perfect career path tailored to your unique strengths, interests, and goals.</p>
+                <button class="btn-primary" onclick="startAssessment()">Start Your Journey</button>
+
+                <div class="hero-features">
+                    <div class="feature-card">
+                        <div class="feature-icon">🎯</div>
+                        <div class="feature-title">Personalized Results</div>
+                        <div class="feature-desc">Get recommendations based on your unique profile</div>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">💼</div>
+                        <div class="feature-title">Real Career Data</div>
+                        <div class="feature-desc">Explore salary ranges and job titles</div>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🔗</div>
+                        <div class="feature-title">Direct Job Links</div>
+                        <div class="feature-desc">Find opportunities on top job platforms</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Username Section -->
+            <section id="usernameSection" class="username-section hidden">
+                <h2>Welcome! Let's Get Started</h2>
+                <p>Enter your name to begin your personalized career discovery journey</p>
+                <div class="input-group">
+                    <label for="usernameInput">Your Name</label>
+                    <input type="text" id="usernameInput" placeholder="Enter your name" />
+                </div>
+                <button class="btn-primary" onclick="submitUsername()" style="width: 100%;">Continue</button>
+            </section>
+
+            <!-- Questions Section -->
+            <section id="questionSection" class="hidden">
+                <div class="question-container">
+                    <div class="progress-container">
+                        <div class="progress-bar-container">
+                            <div class="progress-bar" id="progressBar"></div>
+                        </div>
+                        <div class="progress-text" id="progressText"></div>
+                    </div>
+
+                    <div class="question-card">
+                        <div class="question-number" id="questionNumber"></div>
+                        <div class="question-text" id="questionText"></div>
+                        <div class="options-grid" id="optionsContainer"></div>
+                    </div>
+
+                    <div class="navigation-buttons">
+                        <button class="btn-secondary" id="prevBtn" onclick="previousQuestion()">Previous</button>
+                        <button class="btn-primary" id="nextBtn" onclick="nextQuestion()">Next</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Results Section -->
+            <section id="resultsSection" class="hidden"></section>
+
+            <!-- Career Details Section -->
+            <section id="careerDetailsSection" class="hidden"></section>
+        </main>
+    </div>
+
+    <script>
+        // ============= STATE MANAGEMENT =============
+        
+        let currentUser = '';
+        let currentStage = 'hero'; // hero, username, field-questions, field-results, major-questions, major-results
+        let currentQuestionIndex = 0;
+        let currentQuestions = [];
+        let answers = {};
+        let selectedField = '';
+        let selectedMajor = '';
+        let fieldResults = [];
+        let majorResults = [];
+
+        // ============= AUDIO CONTEXT FOR CELEBRATION MUSIC =============
+        let audioContext;
+        let celebrationPlaying = false;
+
+        function playCelebrationMusic() {
+            if (celebrationPlaying) return;
+            celebrationPlaying = true;
+
+            try {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                
+                // Create a simple happy melody
+                const notes = [
+                    { freq: 523.25, time: 0 },    // C5
+                    { freq: 659.25, time: 0.15 },  // E5
+                    { freq: 783.99, time: 0.3 },   // G5
+                    { freq: 1046.5, time: 0.45 },  // C6
+                    { freq: 783.99, time: 0.6 },   // G5
+                    { freq: 1046.5, time: 0.75 },  // C6
+                    { freq: 1174.7, time: 0.9 },   // D6
+                    { freq: 1318.5, time: 1.05 }   // E6
+                ];
+
+                notes.forEach(note => {
+                    setTimeout(() => {
+                        const oscillator = audioContext.createOscillator();
+                        const gainNode = audioContext.createGain();
+                        
+                        oscillator.connect(gainNode);
+                        gainNode.connect(audioContext.destination);
+                        
+                        oscillator.frequency.value = note.freq;
+                        oscillator.type = 'sine';
+                        
+                        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.15);
+                        
+                        oscillator.start(audioContext.currentTime);
+                        oscillator.stop(audioContext.currentTime + 0.15);
+                    }, note.time * 1000);
+                });
+
+                setTimeout(() => {
+                    celebrationPlaying = false;
+                }, 1500);
+            } catch (e) {
+                console.log('Audio not supported');
+                celebrationPlaying = false;
+            }
+        }
+
+        // ============= FIREWORKS ANIMATION =============
+        
+        class Firework {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.particles = [];
+                this.exploded = false;
+                this.vy = -8 - Math.random() * 4;
+                this.gravity = 0.15;
+                
+                // Create explosion particles
+                const particleCount = 50 + Math.random() * 50;
+                for (let i = 0; i < particleCount; i++) {
+                    const angle = (Math.PI * 2 * i) / particleCount;
+                    const velocity = 2 + Math.random() * 4;
+                    this.particles.push({
+                        x: this.x;
+                        y: this.y;
+                        vx: Math.cos(angle) * velocity,
+                        vy: Math.sin(angle) * velocity,
+                        life: 1,
+                        decay: 0.01 + Math.random() * 0.01,
+                        color: `hsl(${Math.random() * 360}, 100%, 60%)`
+                    });
+                }
+            }
+
+            update() {
+                if (!this.exploded) {
+                    this.vy += this.gravity;
+                    this.y += this.vy;
+                    
+                    if (this.vy >= 0) {
+                        this.exploded = true;
+                    }
+                } else {
+                    this.particles.forEach(p => {
+                        p.x += p.vx;
+                        p.y += p.vy;
+                        p.vy += 0.1;
+                        p.life -= p.decay;
+                    });
+                    this.particles = this.particles.filter(p => p.life > 0);
+                }
+            }
+
+            draw(ctx) {
+                if (!this.exploded) {
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, 3, 0, Math.PI * 2);
+                    ctx.fillStyle = 'white';
+                    ctx.fill();
+                } else {
+                    this.particles.forEach(p => {
+                        ctx.beginPath();
+                        ctx.arc(p.x, p.y, 2, 0, Math.PI * 2);
+                        ctx.fillStyle = p.color;
+                        ctx.globalAlpha = p.life;
+                        ctx.fill();
+                        ctx.globalAlpha = 1;
+                    });
+                }
+            }
+
+            isDead() {
+                return this.exploded && this.particles.length === 0;
+            }
+        }
+
+        let fireworks = [];
+        let fireworksInterval;
+
+        function startFireworks() {
+            const canvas = document.getElementById('fireworksCanvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            canvas.classList.add('active');
+
+            // Launch fireworks periodically
+            fireworksInterval = setInterval(() => {
+                const x = Math.random() * canvas.width;
+                const y = canvas.height;
+                fireworks.push(new Firework(x, y));
+            }, 300);
+
+            // Animation loop
+            function animate() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                fireworks.forEach((fw, index) => {
+                    fw.update();
+                    fw.draw(ctx);
+                    if (fw.isDead()) {
+                        fireworks.splice(index, 1);
+                    }
+                });
+
+                if (canvas.classList.contains('active')) {
+                    requestAnimationFrame(animate);
+                }
+            }
+            animate();
+
+            // Stop after 5 seconds
+            setTimeout(stopFireworks, 5000);
+        }
+
+        function stopFireworks() {
+            clearInterval(fireworksInterval);
+            setTimeout(() => {
+                const canvas = document.getElementById('fireworksCanvas');
+                canvas.classList.remove('active');
+                fireworks = [];
+            }, 2000);
+        }
+
+        function celebrateResults() {
+            // Add celebration class to body for background animation
+            document.body.classList.add('celebration');
+            
+            // Start fireworks
+            startFireworks();
+            
+            // Play happy music
+            playCelebrationMusic();
+
+            // Remove celebration class after animation
+            setTimeout(() => {
+                document.body.classList.remove('celebration');
+            }, 3000);
+        }
+
+        // ============= QUESTIONS DATABASE =============
+        
+        const fieldQuestions = [
+            {
+                id: 1,
+                text: "Which activities do you enjoy most in your free time?",
+                options: [
+                    { text: "Working with numbers and data", fields: { 'Business': 3, 'STEM': 2 } },
+                    { text: "Creating art or music", fields: { 'Arts': 3, 'Humanities': 1 } },
+                    { text: "Helping people with their problems", fields: { 'Healthcare': 3, 'Education': 2 } },
+                    { text: "Building or fixing things", fields: { 'STEM': 3, 'Trades': 2 } }
+                ]
+            },
+            {
+                id: 2,
+                text: "What type of work environment appeals to you?",
+                options: [
+                    { text: "Office with a team", fields: { 'Business': 2, 'STEM': 1 } },
+                    { text: "Creative studio or workspace", fields: { 'Arts': 3 } },
+                    { text: "Hospital or clinic", fields: { 'Healthcare': 3 } },
+                    { text: "Outdoors or workshop", fields: { 'Trades': 3, 'STEM': 1 } }
+                ]
+            },
+            {
+                id: 3,
+                text: "Which subjects did you enjoy most in school?",
+                options: [
+                    { text: "Math and Science", fields: { 'STEM': 3, 'Healthcare': 1 } },
+                    { text: "Art and Music", fields: { 'Arts': 3 } },
+                    { text: "English and History", fields: { 'Humanities': 3, 'Education': 1 } },
+                    { text: "Business and Economics", fields: { 'Business': 3 } }
+                ]
+            },
+            {
+                id: 4,
+                text: "What motivates you most in a career?",
+                options: [
+                    { text: "High salary and growth", fields: { 'Business': 2, 'STEM': 2 } },
+                    { text: "Creative expression", fields: { 'Arts': 3, 'Humanities': 1 } },
+                    { text: "Helping others", fields: { 'Healthcare': 3, 'Education': 3 } },
+                    { text: "Job security and stability", fields: { 'Trades': 2, 'Healthcare': 1 } }
+                ]
+            },
+            {
+                id: 5,
+                text: "How do you prefer to solve problems?",
+                options: [
+                    { text: "With logic and analysis", fields: { 'STEM': 3, 'Business': 2 } },
+                    { text: "Through creative thinking", fields: { 'Arts': 3, 'Humanities': 2 } },
+                    { text: "By collaborating with others", fields: { 'Education': 2, 'Healthcare': 2 } },
+                    { text: "With hands-on practical solutions", fields: { 'Trades': 3, 'STEM': 1 } }
+                ]
+            }
+        ];
+
+        const majorQuestions = {
+            'Business': [
+                {
+                    id: 1,
+                    text: "Which business aspect interests you most?",
+                    options: [
+                        { text: "Financial analysis and investments", majors: { 'finance': 3, 'accounting': 2 } },
+                        { text: "Brand development and advertising", majors: { 'marketing': 3, 'communications': 2 } },
+                        { text: "Strategic planning and operations", majors: { 'management': 3, 'entrepreneurship': 2 } },
+                        { text: "Analyzing market data", majors: { 'business-analytics': 3, 'economics': 2 } }
+                    ]
+                },
+                {
+                    id: 2,
+                    text: "What type of business role appeals to you?",
+                    options: [
+                        { text: "Managing money and budgets", majors: { 'finance': 3, 'accounting': 3 } },
+                        { text: "Creating campaigns and content", majors: { 'marketing': 3, 'communications': 2 } },
+                        { text: "Leading teams and projects", majors: { 'management': 3, 'entrepreneurship': 2 } },
+                        { text: "Interpreting data for decisions", majors: { 'business-analytics': 3, 'economics': 2 } }
+                    ]
+                },
+                {
+                    id: 3,
+                    text: "Which skill do you want to develop most?",
+                    options: [
+                        { text: "Financial modeling", majors: { 'finance': 3, 'accounting': 2 } },
+                        { text: "Digital marketing", majors: { 'marketing': 3, 'communications': 2 } },
+                        { text: "Leadership and negotiation", majors: { 'management': 3, 'entrepreneurship': 2 } },
+                        { text: "Data visualization", majors: { 'business-analytics': 3, 'economics': 1 } }
+                    ]
+                }
+            ],
+            'STEM': [
+                {
+                    id: 1,
+                    text: "Which area of STEM excites you most?",
+                    options: [
+                        { text: "Software and applications", majors: { 'computer-science': 3, 'software-engineering': 2 } },
+                        { text: "Building structures and systems", majors: { 'civil-engineering': 3, 'mechanical-engineering': 2 } },
+                        { text: "Researching and experimenting", majors: { 'biology': 3, 'chemistry': 2 } },
+                        { text: "Solving mathematical problems", majors: { 'mathematics': 3, 'physics': 2 } }
+                    ]
+                },
+                {
+                    id: 2,
+                    text: "What type of projects interest you?",
+                    options: [
+                        { text: "Developing apps and websites", majors: { 'computer-science': 3, 'software-engineering': 3 } },
+                        { text: "Designing infrastructure", majors: { 'civil-engineering': 3, 'mechanical-engineering': 2 } },
+                        { text: "Laboratory research", majors: { 'biology': 3, 'chemistry': 3 } },
+                        { text: "Theoretical analysis", majors: { 'mathematics': 3, 'physics': 3 } }
+                    ]
+                },
+                {
+                    id: 3,
+                    text: "Which work setting do you prefer?",
+                    options: [
+                        { text: "Tech companies or startups", majors: { 'computer-science': 3, 'software-engineering': 3 } },
+                        { text: "Construction sites or factories", majors: { 'civil-engineering': 3, 'mechanical-engineering': 3 } },
+                        { text: "Research labs", majors: { 'biology': 3, 'chemistry': 3 } },
+                        { text: "Universities or think tanks", majors: { 'mathematics': 3, 'physics': 2 } }
+                    ]
+                }
+            ],
+            'Healthcare': [
+                {
+                    id: 1,
+                    text: "How do you want to help people?",
+                    options: [
+                        { text: "Diagnosing and treating patients", majors: { 'medicine': 3, 'nursing': 2 } },
+                        { text: "Providing therapy and counseling", majors: { 'psychology': 3, 'counseling': 2 } },
+                        { text: "Developing medications", majors: { 'pharmacy': 3, 'pharmaceutical-sciences': 2 } },
+                        { text: "Physical rehabilitation", majors: { 'physical-therapy': 3, 'occupational-therapy': 2 } }
+                    ]
+                },
+                {
+                    id: 2,
+                    text: "Which patient interaction appeals to you?",
+                    options: [
+                        { text: "Direct medical care", majors: { 'medicine': 3, 'nursing': 3 } },
+                        { text: "Mental health support", majors: { 'psychology': 3, 'counseling': 3 } },
+                        { text: "Medication consultation", majors: { 'pharmacy': 3, 'pharmaceutical-sciences': 2 } },
+                        { text: "Movement and exercise therapy", majors: { 'physical-therapy': 3, 'occupational-therapy': 3 } }
+                    ]
+                },
+                {
+                    id: 3,
+                    text: "What healthcare setting interests you?",
+                    options: [
+                        { text: "Hospitals and clinics", majors: { 'medicine': 3, 'nursing': 3 } },
+                        { text: "Private practice or counseling centers", majors: { 'psychology': 3, 'counseling': 3 } },
+                        { text: "Pharmacies or research labs", majors: { 'pharmacy': 3, 'pharmaceutical-sciences': 3 } },
+                        { text: "Rehabilitation centers", majors: { 'physical-therapy': 3, 'occupational-therapy': 3 } }
+                    ]
+                }
+            ],
+            'Arts': [
+                {
+                    id: 1,
+                    text: "Which creative medium appeals to you most?",
+                    options: [
+                        { text: "Digital design and interfaces", majors: { 'graphic-design': 3, 'ui-ux-design': 2 } },
+                        { text: "Film and video production", majors: { 'film-production': 3, 'animation': 2 } },
+                        { text: "Music composition and performance", majors: { 'music': 3, 'audio-production': 2 } },
+                        { text: "Drawing and illustration", majors: { 'fine-arts': 3, 'illustration': 2 } }
+                    ]
+                },
+                {
+                    id: 2,
+                    text: "What type of creative projects excite you?",
+                    options: [
+                        { text: "Branding and visual identity", majors: { 'graphic-design': 3, 'ui-ux-design': 2 } },
+                        { text: "Storytelling through video", majors: { 'film-production': 3, 'animation': 3 } },
+                        { text: "Creating soundtracks", majors: { 'music': 3, 'audio-production': 3 } },
+                        { text: "Gallery exhibitions", majors: { 'fine-arts': 3, 'illustration': 2 } }
+                    ]
+                },
+                {
+                    id: 3,
+                    text: "Which skill do you want to master?",
+                    options: [
+                        { text: "Adobe Creative Suite", majors: { 'graphic-design': 3, 'ui-ux-design': 2 } },
+                        { text: "Video editing software", majors: { 'film-production': 3, 'animation': 2 } },
+                        { text: "Music production software", majors: { 'music': 3, 'audio-production': 3 } },
+                        { text: "Traditional and digital art", majors: { 'fine-arts': 3, 'illustration': 3 } }
+                    ]
+                }
+            ],
+            'Education': [
+                {
+                    id: 1,
+                    text: "Which age group would you like to teach?",
+                    options: [
+                        { text: "Young children (PreK-5)", majors: { 'elementary-education': 3, 'early-childhood': 2 } },
+                        { text: "Teenagers (6-12)", majors: { 'secondary-education': 3, 'middle-school-education': 2 } },
+                        { text: "College students", majors: { 'higher-education': 3, 'subject-specialist': 2 } },
+                        { text: "Students with special needs", majors: { 'special-education': 3, 'educational-psychology': 2 } }
+                    ]
+                },
+                {
+                    id: 2,
+                    text: "What teaching style do you prefer?",
+                    options: [
+                        { text: "Hands-on and playful", majors: { 'elementary-education': 3, 'early-childhood': 3 } },
+                        { text: "Subject-focused and structured", majors: { 'secondary-education': 3, 'middle-school-education': 2 } },
+                        { text: "Lecture and research-based", majors: { 'higher-education': 3, 'subject-specialist': 3 } },
+                        { text: "Individualized and adaptive", majors: { 'special-education': 3, 'educational-psychology': 3 } }
+                    ]
+                },
+                {
+                    id: 3,
+                    text: "What aspect of teaching excites you?",
+                    options: [
+                        { text: "Building foundational skills", majors: { 'elementary-education': 3, 'early-childhood': 2 } },
+                        { text: "Preparing for college/career", majors: { 'secondary-education': 3, 'middle-school-education': 2 } },
+                        { text: "Advanced subject matter", majors: { 'higher-education': 3, 'subject-specialist': 3 } },
+                        { text: "Supporting diverse learners", majors: { 'special-education': 3, 'educational-psychology': 3 } }
+                    ]
+                }
+            ],
+            'Humanities': [
+                {
+                    id: 1,
+                    text: "Which area of humanities interests you most?",
+                    options: [
+                        { text: "Literature and writing", majors: { 'english': 3, 'creative-writing': 2 } },
+                        { text: "Historical research", majors: { 'history': 3, 'archaeology': 2 } },
+                        { text: "Human behavior and society", majors: { 'sociology': 3, 'anthropology': 2 } },
+                        { text: "Ethics and reasoning", majors: { 'philosophy': 3, 'political-science': 2 } }
+                    ]
+                },
+                {
+                    id: 2,
+                    text: "What type of work appeals to you?",
+                    options: [
+                        { text: "Writing and editing", majors: { 'english': 3, 'creative-writing': 3 } },
+                        { text: "Research and analysis", majors: { 'history': 3, 'archaeology': 3 } },
+                        { text: "Social research and policy", majors: { 'sociology': 3, 'anthropology': 2 } },
+                        { text: "Critical thinking and debate", majors: { 'philosophy': 3, 'political-science': 3 } }
+                    ]
+                },
+                {
+                    id: 3,
+                    text: "Which skill do you want to develop?",
+                    options: [
+                        { text: "Storytelling and rhetoric", majors: { 'english': 3, 'creative-writing': 3 } },
+                        { text: "Archival research", majors: { 'history': 3, 'archaeology': 2 } },
+                        { text: "Fieldwork and interviews", majors: { 'sociology': 3, 'anthropology': 3 } },
+                        { text: "Logical argumentation", majors: { 'philosophy': 3, 'political-science': 2 } }
+                    ]
+                }
+            ],
+            'Trades': [
+                {
+                    id: 1,
+                    text: "Which skilled trade interests you most?",
+                    options: [
+                        { text: "Electrical systems", majors: { 'electrician': 3, 'electrical-technician': 2 } },
+                        { text: "Plumbing and pipefitting", majors: { 'plumber': 3, 'pipefitter': 2 } },
+                        { text: "Construction and carpentry", majors: { 'carpenter': 3, 'construction-management': 2 } },
+                        { text: "Automotive repair", majors: { 'automotive-technician': 3, 'diesel-mechanic': 2 } }
+                    ]
+                },
+                {
+                    id: 2,
+                    text: "What type of work environment do you prefer?",
+                    options: [
+                        { text: "Residential and commercial buildings", majors: { 'electrician': 3, 'electrical-technician': 2 } },
+                        { text: "Homes and industrial sites", majors: { 'plumber': 3, 'pipefitter': 3 } },
+                        { text: "Construction sites", majors: { 'carpenter': 3, 'construction-management': 3 } },
+                        { text: "Auto shops and garages", majors: { 'automotive-technician': 3, 'diesel-mechanic': 3 } }
+                    ]
+                },
+                {
+                    id: 3,
+                    text: "Which skill do you want to master?",
+                    options: [
+                        { text: "Wiring and circuits", majors: { 'electrician': 3, 'electrical-technician': 3 } },
+                        { text: "Pipe installation and repair", majors: { 'plumber': 3, 'pipefitter': 3 } },
+                        { text: "Woodworking and framing", majors: { 'carpenter': 3, 'construction-management': 2 } },
+                        { text: "Engine diagnostics", majors: { 'automotive-technician': 3, 'diesel-mechanic': 3 } }
+                    ]
+                }
+            ]
+        };
+
+        // ============= CAREER DATABASE =============
+        
+        const careerDatabase = {
+            'finance': {
+                name: 'Finance',
+                description: 'Manage money, investments, and financial planning for individuals and organizations.',
+                careers: [
+                    {
+                        title: 'Financial Analyst',
+                        description: 'Analyze financial data and provide investment recommendations.',
+                        salaryProgression: {
+                            entry: '$55,000 - $70,000',
+                            mid: '$70,000 - $95,000',
+                            senior: '$95,000 - $130,000',
+                            lead: '$130,000 - $180,000+'
+                        },
+                        jobTitles: ['Junior Financial Analyst', 'Financial Analyst', 'Senior Financial Analyst', 'Finance Manager', 'Director of Finance'],
+                        links: {
+                            linkedin: 'https://www.linkedin.com/jobs/search/?keywords=financial%20analyst',
+                            indeed: 'https://www.indeed.com/q-Financial-Analyst-jobs.html',
+                            glassdoor: 'https://www.glassdoor.com/Job/financial-analyst-jobs-SRCH_KO0,17.htm'
+                        }
+                    }
+                ]
+            },
+            'accounting': {
+                name: 'Accounting',
+                description: 'Prepare and examine financial records, ensuring accuracy and compliance with laws.',
+                careers: [
+                    {
+                        title: 'Accountant',
+                        description: 'Manage financial statements, taxes, and audits for organizations.',
+                        salaryProgression: {
+                            entry: '$50,000 - $70,000',
+                            mid: '$70,000 - $90,000',
+                            senior: '$90,000 - $120,000',
+                            lead: '$120,000 - $160,000+'
+                        },
+                        jobTitles: ['Junior Accountant', 'Accountant', 'Senior Accountant', 'Accounting Manager', 'Director of Accounting'],
+                        links: {
+                            linkedin: 'https://www.linkedin.com/jobs/search/?keywords=accountant',
+                            indeed: 'https://www.indeed.com/q-Accountant-jobs.html',
+                            glassdoor: 'https://www.glassdoor.com/Job/accountant-jobs-SRCH_KO0,10.htm'
+                        }
+                    }
+                ]
+            },
+            'marketing': {
+                name: 'Marketing',
+                description: 'Create campaigns and strategies to promote products and brands.',
+                careers: [
+                    {
+                        title: 'Marketing Manager',
+                        description: 'Develop and execute marketing strategies to drive business growth.',
+                        salaryProgression: {
+                            entry: '$50,000 - $65,000',
+                            mid: '$65,000 - $85,000',
+                            senior: '$85,000 - $120,000',
+                            lead: '$120,000 - $160,000+'
+                        },
+                        jobTitles: ['Marketing Coordinator', 'Marketing Specialist', 'Marketing Manager', 'Senior Marketing Manager', 'Director of Marketing'],
+                        links: {
+                            linkedin: 'https://www.linkedin.com/jobs/search/?keywords=marketing%20manager',
+                            indeed: 'https://www.indeed.com/q-Marketing-Manager-jobs.html',
+                            glassdoor: 'https://www.glassdoor.com/Job/marketing-manager-jobs-SRCH_KO0,17.htm'
+                        }
+                    }
+                ]
+            },
+            'communications': {
+                name: 'Communications',
+                description: 'Develop and manage information flow between organizations and the public.',
+                careers: [
+                    {
+                        title: 'Communications Specialist',
+                        description: 'Create and distribute content to promote organizational messages.',
+                        salaryProgression: {
+                            entry: '$45,000 - $60,000',
+                            mid: '$60,000 - $80,000',
+                            senior: '$80,000 - $110,000',
+                            lead: '$110,000 - $150,000+'
+                        },
+                        jobTitles: ['Communications Coordinator', 'Communications Specialist', 'Senior Communications Specialist', 'Communications Manager', 'Director of Communications'],
+                        links: {
+                            linkedin: 'https://www.linkedin.com/jobs/search/?keywords=communications%20specialist',
+                            indeed: 'https://www.indeed.com/q-Communications-Specialist-jobs.html',
+                            glassdoor: 'https://www.glassdoor.com/Job/communications-specialist-jobs-SRCH_KO0,25.htm'
+                        }
+                    }
+                ]
+            },
+            'management': {
+                name: 'Management',
+                description: 'Oversee operations, teams, and strategic direction of organizations.',
+                careers: [
+                    {
+                        title: 'Business Manager',
+                        description: 'Coordinate business activities and ensure efficient operations.',
+                        salaryProgression: {
+                            entry: '$50,000 - $70,000',
+                            mid: '$70,000 - $90,000',
+                            senior: '$90,000 - $120,000',
+                            lead: '$120,000 - $160,000+'
+                        },
+                        jobTitles: ['Assistant Manager', 'Business Manager', 'Senior Manager', 'Department Head', 'Director of Operations'],
+                        links: {
+                            linkedin: 'https://www.linkedin.com/jobs/search/?keywords=business%20manager',
+                            indeed: 'https://www.indeed.com/q-Business-Manager-jobs.html',
+                            glassdoor: 'https://www.glassdoor.com/Job/business-manager-jobs-SRCH_KO0,16.htm'
+                        }
+                    }
+                ]
+            },
+            'entrepreneurship': {
+                name: 'Entrepreneurship',
+                description: 'Start and manage new business ventures, innovating products and services.',
+                careers: [
+                    {
+                        title: 'Entrepreneur',
+                        description: 'Launch and grow startup companies in various industries.',
+                        salaryProgression: {
+                            entry: '$40,000 - $60,000',
+                            mid: '$60,000 - $100,000',
+                            senior: '$100,000 - $200,000',
+                            lead: '$200,000+ (variable)'
+                        },
+                        jobTitles: ['Startup Founder', 'Entrepreneur', 'Business Owner', 'CEO of Startup', 'Venture Capitalist'],
+                        links: {
+                            linkedin: 'https://www.linkedin.com/jobs/search/?keywords=entrepreneur',
+                            indeed: 'https://www.indeed.com/q-Entrepreneur-jobs.html',
+                            glassdoor: 'https://www.glassdoor.com/Job/entrepreneur-jobs-SRCH_KO0,12.htm'
+                        }
+                    }
+                ]
+            },
+            'business-analytics': {
+                name: 'Business Analytics',
+                description: 'Use data analysis to inform business decisions and strategy.',
+                careers: [
+                    {
+                        title: 'Business Analyst',
+                        description: 'Analyze business data to improve processes and performance.',
+                        salaryProgression: {
+                            entry: '$60,000 - $80,000',
+                            mid: '$80,000 - $100,000',
+                            senior: '$100,000 - $130,000',
+                            lead: '$130,000 - $170,000+'
+                        },
+                        jobTitles: ['Junior Business Analyst', 'Business Analyst', 'Senior Business Analyst', 'Analytics Manager', 'Director of Analytics'],
+                        links: {
+                            linkedin: 'https://www.linkedin.com/jobs/search/?keywords=business%20analyst',
+                            indeed: 'https://www.indeed.com/q-Business-Analyst-jobs.html',
+                            glassdoor: 'https://www.glassdoor.com/Job/business-analyst-jobs-SRCH_KO0,16.htm'
+                        }
+                    }
+                ]
+            },
+            'economics': {
+                name: 'Economics',
+                description: 'Study production, distribution, and consumption of goods and services.',
+                careers: [
+                    {
+                        title: 'Economist',
+                        description: 'Analyze economic data and forecast trends for policy and business.',
+                        salaryProgression: {
+                            entry: '$60,000 - $80,000',
+                            mid: '$80,000 - $110,000',
+                            senior: '$110,000 - $150,000',
+                            lead: '$150,000 - $200,000+'
+                        },
+                        jobTitles: ['Junior Economist', 'Economist', 'Senior Economist', 'Economic Advisor', 'Chief Economist'],
+                        links: {
+                            linkedin: 'https://www.linkedin.com/jobs/search/?keywords=economist',
+                            indeed: 'https://www.indeed.com/q-Economist-jobs.html',
+                            glassdoor: 'https://www.glassdoor.com/Job/economist-jobs-SRCH_KO0,9.htm'
+                        }
+                    }
+                ]
+            },
+            'computer-science': {
+                name: 'Computer Science',
+                description: 'Design and develop software, applications, and computing solutions.',
+                careers: [
+                    {
+                        title: 'Software Engineer',
+                        description: 'Build and maintain software applications and systems.',
+                        salaryProgression: {
+                            entry: '$70,000 - $90,000',
+                            mid: '$90,000 - $120,000',
+                            senior: '$120,000 - $160,000',
+                            lead: '$160,000 - $220,000+'
+                        },
+                        jobTitles: ['Junior Software Engineer', 'Software Engineer', 'Senior Software Engineer', 'Lead Engineer', 'Engineering Manager'],
+                        links: {
+                            linkedin: 'https://www.linkedin.com/jobs/search/?keywords=software%20engineer',
+                            indeed: 'https://www.indeed.com/q-Software-Engineer-jobs.html',
+                            glassdoor: 'https://www.glassdoor.com/Job/software-engineer-jobs-SRCH_KO0,17.htm'
+                        }
+                    }
+                ]
+            },
+            'software-engineering': {
+                name: 'Software Engineering',
+                description: 'Apply engineering principles to software development and maintenance.',
+                careers: [
+                    {
+                        title: 'Software Engineer',
+                        description: 'Design, develop, and test software systems.',
+                        salaryProgression: {
+                            entry: '$70,000 - $90,000',
+                            mid: '$90,000 - $120,000',
+                            senior: '$120,000 - $160,000',
+                            lead: '$160,000 - $220,000+'
+                        },
+                        jobTitles: ['Junior Software Engineer', 'Software Engineer', 'Senior Software Engineer', 'Software Architect', 'Engineering Manager'],
+                        links: {
+                            linkedin: 'https://www.linkedin.com/jobs/search/?keywords=software%20engineer',
+                            indeed: 'https://www.indeed.com/q-Software-Engineer-jobs.html',
+                            glassdoor: 'https://www.glassdoor.com/Job/software-engineer-jobs-SRCH_KO0,17.htm'
+                        }
+                    }
+                ]
+            },
+            'civil-engineering': {
+                name: 'Civil Engineering',
+                description: 'Design and oversee construction of infrastructure like roads and bridges.',
+                careers: [
+                    {
+                        title: 'Civil Engineer',
+                        description: 'Plan and supervise large construction projects.',
+                        salaryProgression: {
+                            entry: '$60,000 - $80,000',
+                            mid: '$80,000 - $100,000',
+                            senior: '$100,000 - $130,000',
+                            lead: '$130,000 - $170,000+'
+                        },
+                        jobTitles: ['Junior Civil Engineer', 'Civil Engineer', 'Senior Civil Engineer', 'Project Manager', 'Director of Engineering'],
+                        links: {
+                            linkedin: 'https://www.linkedin.com/jobs/search/?keywords=civil%20engineer',
+                            indeed: 'https://www.indeed.com/q-Civil-Engineer-jobs.html',
+                            glassdoor: 'https://www.glassdoor.com/Job/civil-engineer-jobs-SRCH_KO0,14.htm'
+                        }
+                    }
+                ]
+            },
+            'mechanical-engineering': {
+                name: 'Mechanical Engineering',
+                description: 'Design and manufacture mechanical systems and devices.',
+                careers: [
+                    {
+                        title: 'Mechanical Engineer',
+                        description: 'Develop mechanical and thermal devices and systems.',
+                        salaryProgression: {
+                            entry: '$65,000 - $85,000',
+                            mid: '$85,000 - $110,000',
+                            senior: '$110,000 - $140,000',
+                            lead: '$140,000 - $180,000+'
+                        },
+                        jobTitles: ['Junior Mechanical Engineer', 'Mechanical Engineer', 'Senior Mechanical Engineer', 'Project Engineer', 'Engineering Manager'],
+                        links: {
+                            linkedin: 'https://www.linkedin.com/jobs/search/?keywords=mechanical%20engineer',
+                            indeed: 'https://www.indeed.com/q-Mechanical-Engineer-jobs.html',
+                            glassdoor: 'https://www.glassdoor.com/Job/mechanical-engineer-jobs-SRCH_KO0,19.htm'
+                        }
+                    }
+                ]
+            },
+            'biology': {
+                name: 'Biology',
+                description: 'Study living organisms and their interactions with the environment.',
+                careers: [
+                    {
+                        title: 'Biologist',
+                        description: 'Conduct research on living things and their ecosystems.',
+                        salaryProgression: {
+                            entry: '$50,000 - $70,000',
+                            mid: '$70,000 - $90,000',
+                            senior: '$90,000 - $120,000',
+                            lead: '$120,000 - $160,000+'
+                        },
+                        jobTitles: ['Junior Biologist', 'Biologist', 'Senior Biologist', 'Research Scientist', 'Director of Research'],
+                        links: {
+                            linkedin: 'https://www.linkedin.com/jobs/search/?keywords=biologist',
+                            indeed: 'https://www.indeed.com/q-Biologist-jobs.html',
+                            glassdoor: 'https://www.glassdoor.com/Job/biologist-jobs-SRCH_KO0,9.htm'
+                        }
+                    }
+                ]
+            },
+            'chemistry': {
+                name: 'Chemistry',
+                description: 'Investigate the properties and reactions of substances.',
+                careers: [
+                    {
+                        title: 'Chemist',
+                        description: 'Develop new compounds and improve chemical processes.',
+                        salaryProgression: {
+                            entry: '$50,000 - $70,000',
+                            mid: '$70,000 - $90,000',
+                            senior: '$90,000 - $120,000',
+                            lead: '$120,000 - $160,000+'
+                        },
+                        jobTitles: ['Junior Chemist', 'Chemist', 'Senior Chemist', 'Research Chemist', 'Laboratory Director'],
+                        links: {
+                            linkedin: 'https://www.linkedin.com/jobs/search/?keywords=chemist',
+                            indeed: 'https://www.indeed.com/q-Chemist-jobs.html',
+                            glassdoor: 'https://www.glassdoor.com/Job/chemist-jobs-SRCH_KO0,7.htm'
+                        }
+                    }
+                ]
+            },
+            'mathematics': {
+                name: 'Mathematics',
+                description: 'Develop mathematical models and theories to solve problems in various fields.',
+                careers: [
+                    {
+                        title: 'Mathematician',
+                        description: 'Apply mathematical principles to solve problems in industry and research.',
+                        salaryProgression: {
+                            entry: '$60,000 - $80,000',
+                            mid: '$80,000 - $110,000',
+                            senior: '$110,000 - $140,000',
+                            lead: '$140,000 - $180,000+'
+                        },
+                        jobTitles: ['Junior Mathematician', 'Mathematician', 'Senior Mathematician', 'Research Mathematician', 'Director of Mathematics'],
+                        links: {
+                            linkedin: 'https://www.linkedin.com/jobs/search/?keywords=mathematician',
+                            indeed: 'https://www.indeed.com/q-Mathematician-jobs.html',
+                            glassdoor: 'https://www.glassdoor.com/Job/mathematician-jobs-SRCH_KO0,13.htm'
+                        }
+                    }
+                ]
+            },
+            'physics': {
+                name: 'Physics',
+                description: 'Study matter, energy, and the fundamental laws of the universe.',
+                careers: [
+                    {
+                        title: 'Physicist',
+                        description: 'Conduct research on physical phenomena and develop theories.',
+                        salaryProgression: {
+                            entry: '$60,000 - $80,000',
+                            mid: '$80,000 - $110,000',
+                            senior: '$110,000 - $150,000',
+                            lead: '$150,000 - $200,000+'
+                        },
+                        jobTitles: ['Junior Physicist', 'Physicist', 'Senior Physicist', 'Research Physicist', 'Director of Physics Research'],
+                        links: {
+                            linkedin: 'https://www.linkedin.com/jobs/search/?keywords=physicist',
+                            indeed: 'https://www.indeed.com/q-Physicist-jobs.html',
+                            glassdoor: 'https://www.glassdoor.com/Job/physicist-jobs-SRCH_KO0,9.htm'
+                        }
+                    }
+                ]
+            },
+            'medicine': {
+                name: 'Medicine',
+                description: 'Diagnose, treat, and prevent illnesses and injuries in patients.',
+                careers: [
+                    {
+                        title: 'Physician',
+                        description: 'Provide medical care, diagnose conditions, and prescribe treatments.',
+                        salaryProgression: {
+                            entry: '$180,000 - $220,000',
+                            mid: '$220,000 - $280,000',
+                            senior: '$280,000 - $350,000',
+                            lead: '$350,000+'
+                        },
+                        jobTitles: ['Resident Physician', 'Attending Physician', 'Specialist Physician', 'Medical Director', 'Chief Medical Officer'],
+                        links: {
+                            linkedin: 'https://www.linkedin.com/jobs/search/?keywords=physician',
+                            indeed: 'https://www.indeed.com/q-Physician-jobs.html',
+                            glassdoor: 'https://www.glassdoor.com/Job/physician-jobs-SRCH_KO0,9.htm'
+                        }
+                    }
+                ]
+            },
+            'nursing': {
+                name: 'Nursing',
+                description: 'Provide patient care, administer treatments, and support health recovery.',
+                careers: [
+                    {
+                        title: 'Registered Nurse',
+                        description: 'Assess patient needs, develop care plans, and administer medications.',
+                        salaryProgression: {
+                            entry: '$60,000 - $80,000',
+                            mid: '$80,000 - $100,000',
+                            senior: '$100,000 - $120,000',
+                            lead: '$120,000 - $150,000+'
+                        },
+                        jobTitles: ['Staff Nurse', 'Registered Nurse', 'Charge Nurse', 'Nurse Manager', 'Director of Nursing'],
+                        links: {
+                            linkedin: 'https://www.linkedin.com/jobs/search/?keywords=registered%20nurse',
+                            indeed: 'https://www.indeed.com/q-Registered-Nurse-jobs.html',
+                            glassdoor: 'https://www.glassdoor.com/Job/registered-nurse-jobs-SRCH_KO0,16.htm'
+                        }
+                    }
+                ]
+            },
+            'psychology': {
+                name: 'Psychology',
+                description: 'Study mental processes and behavior to diagnose and treat emotional disorders.',
+                careers: [
+                    {
+                        title: 'Psychologist',
+                        description: 'Assess and treat mental health issues through therapy and evaluation.',
+                        salaryProgression: {
+                            entry: '$50,000 - $70,000',
+                            mid: '$70,000 - $90,000',
+                            senior: '$90,000 - $120,000',
+                            lead: '$120,000 - $150,000+'
+                        },
+                        jobTitles: ['Clinical Psychologist', 'Psychologist', 'Senior Psychologist', 'Psychology Supervisor', 'Director of Psychology'],
+                        links: {
+                            linkedin: 'https://www.linkedin.com/jobs/search/?keywords=psychologist',
+                            indeed: 'https://www.indeed.com/q-Psychologist-jobs.html',
+                            glassdoor: 'https://www.glassdoor.com/Job/psychologist-jobs-SRCH_KO0,12.htm'
+                        }
+                    }
+                ]
+            },
+            'counseling': {
+                name: 'Counseling',
+                description: 'Provide guidance to individuals dealing with personal or emotional issues.',
+                careers: [
+                    {
+                        title: 'Counselor',
+                        description: 'Help clients address problems like addiction, stress, or family issues.',
+                        salaryProgression: {
+                            entry: '$30,000 - $50,000',
+                            mid: '$50,000 - $80,000',
+                            senior: '$80,000 - $120,000',
+                            lead: '$120,000+'
+                        },
+                        jobTitles: ['Counselor', 'Senior Counselor', 'Counseling Supervisor', 'Director of Counseling', 'Chief Counselor'],
+                        links: {
+                            linkedin: 'https://www.linkedin.com/jobs/search/?keywords=counselor',
+                            indeed: 'https://www.indeed.com/q-Counselor-jobs.html',
+                            glassdoor: 'https://www.glassdoor.com/Job/counselor-jobs-SRCH_KO0,9.htm'
+                        }
+                    }
+                ]
+            },
+            'pharmacy': {
+                name: 'Pharmacy',
+                description: 'Dispense medications and advise on drug use and interactions.',
+                careers: [
+                    {
+                        title: 'Pharmacist',
+                        description: 'Prepare and dispense prescriptions, ensuring safe medication use.',
+                        salaryProgression: {
+                            entry: '$100,000 - $130,000',
+                            mid: '$130,000 - $150,000',
+                            senior: '$150,000 - $170,000',
+                            lead: '$170,000+'
+                        },
+                        jobTitles: ['Staff Pharmacist', 'Pharmacist', 'Senior Pharmacist', 'Pharmacy Manager', 'Director of Pharmacy'],
+                        links: {
+                            linkedin: 'https://www.linkedin.com/jobs/search/?keywords=pharmacist',
+                            indeed: 'https://www.indeed.com/q-Pharmacist-jobs.html',
+                            glassdoor: 'https://www.glassdoor.com/Job/pharmacist-jobs-SRCH_KO0,10.htm'
+                        }
+                    }
+                ]
+            },
+            'pharmaceutical-sciences': {
+                name: 'Pharmaceutical Sciences',
+                description: 'Research and develop new drugs and therapies.',
+                careers: [
+                    {
+                        title: 'Pharmaceutical Scientist',
+                        description: 'Conduct experiments to create and test new medications.',
+                        salaryProgression: {
+                            entry: '$60,000 - $80,000',
+                            mid: '$80,000 - $110,000',
+                            senior: '$110,000 - $140,000',
+                            lead: '$140,000 - $180,000+'
+                        },
+                        jobTitles: ['Junior Pharmaceutical Scientist', 'Pharmaceutical Scientist', 'Senior Pharmaceutical Scientist', 'Research Director', 'Chief Scientist'],
+                        links: {
+                            linkedin: 'https://www.linkedin.com/jobs/search/?keywords=pharmaceutical%20scientist',
+                            indeed: 'https://www.indeed.com/q-Pharmaceutical-Scientist-jobs.html',
+                            glassdoor: 'https://www.glassdoor.com/Job/pharmaceutical-scientist-jobs-SRCH_KO0,23.htm'
+                        }
+                    }
+                ]
+            },
+            'physical-therapy': {
+                name: 'Physical Therapy',
+                description: 'Help patients recover movement and manage pain through exercises.',
+                careers: [
+                    {
+                        title: 'Physical Therapist',
+                        description: 'Design treatment plans to improve patient mobility.',
+                        salaryProgression: {
+                            entry: '$70,000 - $90,000',
+                            mid: '$90,000 - $110,000',
+                            senior: '$110,000 - $130,000',
+                            lead: '$130,000 - $160,000+'
+                        },
+                        jobTitles: ['Physical Therapy Assistant', 'Physical Therapist', 'Senior Physical Therapist', 'Clinic Manager', 'Director of Rehabilitation'],
+                        links: {
+                            linkedin: 'https://www.linkedin.com/jobs/search/?keywords=physical%20therapist',
+                            indeed: 'https://www.indeed.com/q-Physical-Therapist-jobs.html',
+                            glassdoor: 'https://www.glassdoor.com/Job/physical-therapist-jobs-SRCH_KO0,18.htm'
+                        }
+                    }
+                ]
+            },
+            'occupational-therapy': {
+                name: 'Occupational Therapy',
+                description: 'Assist patients in developing skills for daily living.',
+                careers: [
+                    {
+                        title: 'Occupational Therapist',
+                        description: 'Help patients perform everyday activities independently.',
+                        salaryProgression: {
+                            entry: '$70,000 - $90,000',
+                            mid: '$90,000 - $110,000',
+                            senior: '$110,000 - $130,000',
+                            lead: '$130,000 - $160,000+'
+                        },
+                        jobTitles: ['Occupational Therapy Assistant', 'Occupational Therapist', 'Senior Occupational Therapist', 'Therapy Supervisor', 'Director of Occupational Therapy'],
+                        links: {
+                            linkedin: 'https://www.linkedin.com/jobs/search/?keywords=occupational%20therapist',
+                            indeed: 'https://www.indeed.com/q-Occupational-Therapist-jobs.html',
+                            glassdoor: 'https://www.glassdoor.com/Job/occupational-therapist-jobs-SRCH_KO0,22.htm'
+                        }
+                    }
+                ]
+            },
+            'graphic-design': {
+                name: 'Graphic Design',
+                description: 'Create visual content for brands, websites, and marketing materials.',
+                careers: [
+                    {
+                        title: 'Graphic Designer',
+                        description: 'Design visual concepts and branding materials.',
+                        salaryProgression: {
+                            entry: '$40,000 - $55,000',
+                            mid: '$55,000 - $70,000',
+                            senior: '$70,000 - $95,000',
+                            lead: '$95,000 - $130,000+'
+                        },
+                        jobTitles: ['Junior Designer', 'Graphic Designer', 'Senior Designer', 'Art Director', 'Creative Director'],
+                        links: {
+                            linkedin: 'https://www.linkedin.com/jobs/search/?keywords=graphic%20designer',
+                            indeed: 'https://www.indeed.com/q-Graphic-Designer-jobs.html',
+                            glassdoor: 'https://www.glassdoor.com/Job/graphic-designer-jobs-SRCH_KO0,16.htm'
+                        }
+                    }
+                ]
+            },
+            'ui-ux-design': {
+                name: 'UI/UX Design',
+                description: 'Design user interfaces and experiences for digital products.',
+                careers: [
+                    {
+                        title: 'UI/UX Designer',
+                        description: 'Create intuitive interfaces for apps and websites.',
+                        salaryProgression: {
+                            entry: '$60,000 - $80,000',
+                            mid: '$80,000 - $110,000',
+                            senior: '$110,000 - $140,000',
+                            lead: '$140,000 - $180,000+'
+                        },
+                        jobTitles: ['Junior UI/UX Designer', 'UI/UX Designer', 'Senior UI/UX Designer', 'Product Designer', 'UX Director'],
+                        links: {
+                            linkedin: 'https://www.linkedin.com/jobs/search/?keywords=ui%20ux%20designer',
+                            indeed: 'https://www.indeed.com/q-UI-UX-Designer-jobs.html',
+                            glassdoor: 'https://www.glassdoor.com/Job/ui-ux-designer-jobs-SRCH_KO0,14.htm'
+                        }
+                    }
+                ]
+            },
+            'film-production': {
+                name: 'Film Production',
+                description: 'Plan and execute the creation of films and video content.',
+                careers: [
+                    {
+                        title: 'Film Producer',
+                        description: 'Oversee film projects from concept to completion.',
+                        salaryProgression: {
+                            entry: '$50,000 - $70,000',
+                            mid: '$70,000 - $100,000',
+                            senior: '$100,000 - $150,000',
+                            lead: '$150,000 - $200,000+'
+                        },
+                        jobTitles: ['Production Assistant', 'Associate Producer', 'Film Producer', 'Executive Producer', 'Studio Executive'],
+                        links: {
+                            linkedin: 'https://www.linkedin.com/jobs/search/?keywords=film%20producer',
+                            indeed: 'https://www.indeed.com/q-Film-Producer-jobs.html',
+                            glassdoor: 'https://www.glassdoor.com/Job/film-producer-jobs-SRCH_KO0,13.htm'
+                        }
+                    }
+                ]
+            },
+            'animation': {
+                name: 'Animation',
+                description: 'Create animated content for films, games, and media.',
+                careers: [
+                    {
+                        title: 'Animator',
+                        description: 'Develop animations using digital tools.',
+                        salaryProgression: {
+                            entry: '$50,000 - $70,000',
+                            mid: '$70,000 - $90,000',
+                            senior: '$90,000 - $120,000',
+                            lead: '$120,000 - $160,000+'
+                        },
+                        jobTitles: ['Junior Animator', 'Animator', 'Senior Animator', 'Animation Director', 'Creative Director'],
+                        links: {
+                            linkedin: 'https://www.linkedin.com/jobs/search/?keywords=animator',
+                            indeed: 'https://www.indeed.com/q-Animator-jobs.html',
+                            glassdoor: 'https://www.glassdoor.com/Job/animator-jobs-SRCH_KO0,8.htm'
+                        }
+                    }
+                ]
+            },
+            'music': {
+                name: 'Music',
+                description: 'Compose, perform, and produce musical works.',
+                careers: [
+                    {
+                        title: 'Musician',
+                        description: 'Perform music in various settings or record tracks.',
+                        salaryProgression: {
+                            entry: '$30,000 - $50,000',
+                            mid: '$50,000 - $80,000',
+                            senior: '$80,000 - $120,000',
+                            lead: '$120,000+ (variable)'
+                        },
+                        jobTitles: ['Session Musician', 'Musician', 'Band Leader', 'Music Director', 'Composer'],
+                        links: {
+                            linkedin: 'https://www.linkedin.com/jobs/search/?keywords=musician',
+                            indeed: 'https://www.indeed.com/q-Musician-jobs.html',
+                            glassdoor: 'https://www.glassdoor.com/Job/musician-jobs-SRCH_KO0,8.htm'
+                        }
+                    }
+                ]
+            },
+            'audio-production': {
+                name: 'Audio Production',
+                description: 'Record, edit, and produce audio for media.',
+                careers: [
+                    {
+                        title: 'Audio Producer',
+                        description: 'Oversee audio recording and production processes.',
+                        salaryProgression: {
+                            entry: '$50,000 - $70,000',
+                            mid: '$70,000 - $90,000',
+                            senior: '$90,000 - $120,000',
+                            lead: '$120,000 - $150,000+'
+                        },
+                        jobTitles: ['Audio Technician', 'Audio Producer', 'Senior Audio Producer', 'Production Manager', 'Director of Audio'],
+                        links: {
+                            linkedin: 'https://www.linkedin.com/jobs/search/?keywords=audio%20producer',
+                            indeed: 'https://www.indeed.com/q-Audio-Producer-jobs.html',
+                            glassdoor: 'https://www.glassdoor.com/Job/audio-producer-jobs-SRCH_KO0,14.htm'
+                        }
+                    }
+                ]
+            },
+            'fine-arts': {
+                name: 'Fine Arts',
+                description: 'Create visual art pieces for galleries and exhibitions.',
+                careers: [
+                    {
+                        title: 'Fine Artist',
+                        description: 'Produce original artwork in various mediums.',
+                        salaryProgression: {
+                            entry: '$30,000 - $50,000',
+                            mid: '$50,000 - $70,000',
+                            senior: '$70,000 - $100,000',
+                            lead: '$100,000+ (variable)'
+                        },
+                        jobTitles: ['Emerging Artist', 'Fine Artist', 'Established Artist', 'Gallery Artist', 'Art Director'],
+                        links: {
+                            linkedin: 'https://www.linkedin.com/jobs/search/?keywords=fine%20artist',
+                            indeed: 'https://www.indeed.com/q-Fine-Artist-jobs.html',
+                            glassdoor: 'https://www.glassdoor.com/Job/fine-artist-jobs-SRCH_KO0,11.htm'
+                        }
+                    }
+                ]
+            },
+            'illustration': {
+                name: 'Illustration',
+                description: 'Create illustrations for books, magazines, and digital media.',
+                careers: [
+                    {
+                        title: 'Illustrator',
+                        description: 'Design visual representations for various publications.',
+                        salaryProgression: {
+                            entry: '$40,000 - $60,000',
+                            mid: '$60,000 - $80,000',
+                            senior: '$80,000 - $110,000',
+                            lead: '$110,000 - $140,000+'
+                        },
+                        jobTitles: ['Junior Illustrator', 'Illustrator', 'Senior Illustrator', 'Lead Illustrator', 'Art Director'],
+                        links: {
+                            linkedin: 'https://www.linkedin.com/jobs/search/?keywords=illustrator',
+                            indeed: 'https://www.indeed.com/q-Illustrator-jobs.html',
+                            glassdoor: 'https://www.glassdoor.com/Job/illustrator-jobs-SRCH_KO0,11.htm'
+                        }
+                    }
+                ]
+            },
+            'elementary-education': {
+                name: 'Elementary Education',
+                description: 'Teach young children foundational academic and social skills.',
+                careers: [
+                    {
+                        title: 'Elementary School Teacher',
+                        description: 'Educate children in grades K-5 across multiple subjects.',
+                        salaryProgression: {
+                            entry: '$40,000 - $50,000',
+                            mid: '$50,000 - $60,000',
+                            senior: '$60,000 - $75,000',
+                            lead: '$75,000 - $95,000+'
+                        },
+                        jobTitles: ['Student Teacher', 'Elementary Teacher', 'Lead Teacher', 'Department Head', 'Principal'],
+                        links: {
+                            linkedin: 'https://www.linkedin.com/jobs/search/?keywords=elementary%20teacher',
+                            indeed: 'https://www.indeed.com/q-Elementary-Teacher-jobs.html',
+                            glassdoor: 'https://www.glassdoor.com/Job/elementary-teacher-jobs-SRCH_KO0,18.htm'
+                        }
+                    }
+                ]
+            },
+            'early-childhood': {
+                name: 'Early Childhood Education',
+                description: 'Educate and care for children from birth to age 8.',
+                careers: [
+                    {
+                        title: 'Early Childhood Educator',
+                        description: 'Develop programs for young childrens learning and development.',
+                        salaryProgression: {
+                            entry: '$30,000 - $40,000',
+                            mid: '$40,000 - $50,000',
+                            senior: '$50,000 - $65,000',
+                            lead: '$65,000 - $85,000+'
+                        },
+                        jobTitles: ['Childcare Worker', 'Early Childhood Educator', 'Lead Educator', 'Program Coordinator', 'Director of Early Childhood'],
+                        links: {
+                            linkedin: 'https://www.linkedin.com/jobs/search/?keywords=early%20childhood%20educator',
+                            indeed: 'https://www.indeed.com/q-Early-Childhood-Educator-jobs.html',
+                            glassdoor: 'https://www.glassdoor.com/Job/early-childhood-educator-jobs-SRCH_KO0,24.htm'
+                        }
+                    }
+                ]
+            },
+            'secondary-education': {
+                name: 'Secondary Education',
+                description: 'Teach adolescents in grades 6-12 specific subjects.',
+                careers: [
+                    {
+                        title: 'Secondary School Teacher',
+                        description: 'Instruct high school students in specialized subjects.',
+                        salaryProgression: {
+                            entry: '$45,000 - $60,000',
+                            mid: '$60,000 - $75,000',
+                            senior: '$75,000 - $95,000',
+                            lead: '$95,000 - $120,000+'
+                        },
+                        jobTitles: ['Student Teacher', 'Secondary Teacher', 'Lead Teacher', 'Department Chair', 'Principal'],
+                        links: {
+                            linkedin: 'https://www.linkedin.com/jobs/search/?keywords=secondary%20teacher',
+                            indeed: 'https://www.indeed.com/q-Secondary-Teacher-jobs.html',
+                            glassdoor: 'https://www.glassdoor.com/Job/secondary-teacher-jobs-SRCH_KO0,17.htm'
+                        }
+                    }
+                ]
+            },
+            'middle-school-education': {
+                name: 'Middle School Education',
+                description: 'Teach students in grades 4-8 during transitional years.',
+                careers: [
+                    {
+                        title: 'Middle School Teacher',
+                        description: 'Educate adolescents in core subjects and life skills.',
+                        salaryProgression: {
+                            entry: '$45,000 - $60,000',
+                            mid: '$60,000 - $75,000',
+                            senior: '$75,000 - $95,000',
+                            lead: '$95,000 - $120,000+'
+                        },
+                        jobTitles: ['Student Teacher', 'Middle School Teacher', 'Lead Teacher', 'Department Head', 'Principal'],
+                        links: {
+                            linkedin: 'https://www.linkedin.com/jobs/search/?keywords=middle%20school%20teacher',
+                            indeed: 'https://www.indeed.com/q-Middle-School-Teacher-jobs.html',
+                            glassdoor: 'https://www.glassdoor.com/Job/middle-school-teacher-jobs-SRCH_KO0,21.htm'
+                        }
+                    }
+                ]
+            },
+            'higher-education': {
+                name: 'Higher Education',
+                description: 'Teach and research at colleges and universities.',
+                careers: [
+                    {
+                        title: 'College Professor',
+                        description: 'Instruct university students and conduct research.',
+                        salaryProgression: {
+                            entry: '$60,000 - $80,000',
+                            mid: '$80,000 - $110,000',
+                            senior: '$110,000 - $150,000',
+                            lead: '$150,000 - $200,000+'
+                        },
+                        jobTitles: ['Lecturer', 'Assistant Professor', 'Associate Professor', 'Full Professor', 'Department Chair'],
+                        links: {
+                            linkedin: 'https://www.linkedin.com/jobs/search/?keywords=college%20professor',
+                            indeed: 'https://www.indeed.com/q-College-Professor-jobs.html',
+                            glassdoor: 'https://www.glassdoor.com/Job/college-professor-jobs-SRCH_KO0,17.htm'
+                        }
+                    }
+                ]
+            },
+            'subject-specialist': {
+                name: 'Subject Specialist Education',
+                description: 'Specialize in teaching a particular subject across grade levels.',
+                careers: [
+                    {
+                        title: 'Subject Specialist Teacher',
+                        description: 'Teach specialized subjects like math or science in schools.',
+                        salaryProgression: {
+                            entry: '$45,000 - $60,000',
+                            mid: '$60,000 - $75,000',
+                            senior: '$75,000 - $95,000',
+                            lead: '$95,000 - $120,000+'
+                        },
+                        jobTitles: ['Subject Teacher', 'Specialist Teacher', 'Senior Specialist', 'Curriculum Specialist', 'Department Head'],
+                        links: {
+                            linkedin: 'https://www.linkedin.com/jobs/search/?keywords=subject%20specialist%20teacher',
+                            indeed: 'https://www.indeed.com/q-Subject-Specialist-Teacher-jobs.html',
+                            glassdoor: 'https://www.glassdoor.com/Job/subject-specialist-teacher-jobs-SRCH_KO0,26.htm'
+                        }
+                    }
+                ]
+            },
+            'special-education': {
+                name: 'Special Education',
+                description: 'Teach students with special needs using adapted methods.',
+                careers: [
+                    {
+                        title: 'Special Education Teacher',
+                        description: 'Provide individualized education for students with disabilities.',
+                        salaryProgression: {
+                            entry: '$45,000 - $60,000',
+                            mid: '$60,000 - $75,000',
+                            senior: '$75,000 - $95,000',
+                            lead: '$95,000 - $120,000+'
+                        },
+                        jobTitles: ['Special Education Aide', 'Special Education Teacher', 'Senior Special Ed Teacher', 'Special Ed Coordinator', 'Director of Special Education'],
+                        links: {
+                            linkedin: 'https://www.linkedin.com/jobs/search/?keywords=special%20education%20teacher',
+                            indeed: 'https://www.indeed.com/q-Special-Education-Teacher-jobs.html',
+                            glassdoor: 'https://www.glassdoor.com/Job/special-education-teacher-jobs-SRCH_KO0,25.htm'
+                        }
+                    }
+                ]
+            },
+            'educational-psychology': {
+                name: 'Educational Psychology',
+                description: 'Apply psychological principles to educational settings.',
+                careers: [
+                    {
+                        title: 'Educational Psychologist',
+                        description: 'Assess and support students learning and emotional needs.',
+                        salaryProgression: {
+                            entry: '$60,000 - $80,000',
+                            mid: '$80,000 - $100,000',
+                            senior: '$100,000 - $130,000',
+                            lead: '$130,000 - $170,000+'
+                        },
+                        jobTitles: ['School Psychologist', 'Educational Psychologist', 'Senior Psychologist', 'Psychology Coordinator', 'Director of Student Services'],
+                        links: {
+                            linkedin: 'https://www.linkedin.com/jobs/search/?keywords=educational%20psychologist',
+                            indeed: 'https://www.indeed.com/q-Educational-Psychologist-jobs.html',
+                            glassdoor: 'https://www.glassdoor.com/Job/educational-psychologist-jobs-SRCH_KO0,24.htm'
+                        }
+                    }
+                ]
+            },
+            'english': {
+                name: 'English',
+                description: 'Study and create written works, analyze literature, and develop writing skills.',
+                careers: [
+                    {
+                        title: 'Content Writer',
+                        description: 'Create engaging written content for various media.',
+                        salaryProgression: {
+                            entry: '$40,000 - $55,000',
+                            mid: '$55,000 - $70,000',
+                            senior: '$70,000 - $90,000',
+                            lead: '$90,000 - $120,000+'
+                        },
+                        jobTitles: ['Junior Writer', 'Content Writer', 'Senior Writer', 'Managing Editor', 'Content Director'],
+                        links: {
+                            linkedin: 'https://www.linkedin.com/jobs/search/?keywords=content%20writer',
+                            indeed: 'https://www.indeed.com/q-Content-Writer-jobs.html',
+                            glassdoor: 'https://www.glassdoor.com/Job/content-writer-jobs-SRCH_KO0,14.htm'
+                        }
+                    }
+                ]
+            },
+            'creative-writing': {
+                name: 'Creative Writing',
+                description: 'Develop original written content for books, scripts, and media.',
+                careers: [
+                    {
+                        title: 'Creative Writer',
+                        description: 'Produce fiction, poetry, or scripts for publication.',
+                        salaryProgression: {
+                            entry: '$40,000 - $60,000',
+                            mid: '$60,000 - $80,000',
+                            senior: '$80,000 - $110,000',
+                            lead: '$110,000 - $140,000+'
+                        },
+                        jobTitles: ['Aspiring Writer', 'Creative Writer', 'Published Author', 'Senior Writer', 'Editor-in-Chief'],
+                        links: {
+                            linkedin: 'https://www.linkedin.com/jobs/search/?keywords=creative%20writer',
+                            indeed: 'https://www.indeed.com/q-Creative-Writer-jobs.html',
+                            glassdoor: 'https://www.glassdoor.com/Job/creative-writer-jobs-SRCH_KO0,15.htm'
+                        }
+                    }
+                ]
+            },
+            'history': {
+                name: 'History',
+                description: 'Research and analyze past events to understand the present.',
+                careers: [
+                    {
+                        title: 'Historian',
+                        description: 'Study historical documents and write about past events.',
+                        salaryProgression: {
+                            entry: '$50,000 - $70,000',
+                            mid: '$70,000 - $90,000',
+                            senior: '$90,000 - $120,000',
+                            lead: '$120,000 - $150,000+'
+                        },
+                        jobTitles: ['Research Assistant', 'Historian', 'Senior Historian', 'Historical Consultant', 'Director of Historical Research'],
+                        links: {
+                            linkedin: 'https://www.linkedin.com/jobs/search/?keywords=historian',
+                            indeed: 'https://www.indeed.com/q-Historian-jobs.html',
+                            glassdoor: 'https://www.glassdoor.com/Job/historian-jobs-SRCH_KO0,9.htm'
+                        }
+                    }
+                ]
+            },
+            'archaeology': {
+                name: 'Archaeology',
+                description: 'Excavate and study artifacts to understand ancient cultures.',
+                careers: [
+                    {
+                        title: 'Archaeologist',
+                        description: 'Conduct field excavations and analyze findings.',
+                        salaryProgression: {
+                            entry: '$45,000 - $65,000',
+                            mid: '$65,000 - $85,000',
+                            senior: '$85,000 - $110,000',
+                            lead: '$110,000 - $140,000+'
+                        },
+                        jobTitles: ['Field Technician', 'Archaeologist', 'Senior Archaeologist', 'Project Director', 'Museum Curator'],
+                        links: {
+                            linkedin: 'https://www.linkedin.com/jobs/search/?keywords=archaeologist',
+                            indeed: 'https://www.indeed.com/q-Archaeologist-jobs.html',
+                            glassdoor: 'https://www.glassdoor.com/Job/archaeologist-jobs-SRCH_KO0,13.htm'
+                        }
+                    }
+                ]
+            },
+            'sociology': {
+                name: 'Sociology',
+                description: 'Study social behavior and societal structures.',
+                careers: [
+                    {
+                        title: 'Sociologist',
+                        description: 'Research social issues and trends.',
+                        salaryProgression: {
+                            entry: '$50,000 - $70,000',
+                            mid: '$70,000 - $90,000',
+                            senior: '$90,000 - $120,000',
+                            lead: '$120,000 - $150,000+'
+                        },
+                        jobTitles: ['Research Assistant', 'Sociologist', 'Senior Sociologist', 'Social Researcher', 'Director of Social Research'],
+                        links: {
+                            linkedin: 'https://www.linkedin.com/jobs/search/?keywords=sociologist',
+                            indeed: 'https://www.indeed.com/q-Sociologist-jobs.html',
+                            glassdoor: 'https://www.glassdoor.com/Job/sociologist-jobs-SRCH_KO0,11.htm'
+                        }
+                    }
+                ]
+            },
+            'anthropology': {
+                name: 'Anthropology',
+                description: 'Study human societies, cultures, and development.',
+                careers: [
+                    {
+                        title: 'Anthropologist',
+                        description: 'Conduct fieldwork to study human cultures.',
+                        salaryProgression: {
+                            entry: '$50,000 - $70,000',
+                            mid: '$70,000 - $90,000',
+                            senior: '$90,000 - $120,000',
+                            lead: '$120,000 - $150,000+'
+                        },
+                        jobTitles: ['Field Researcher', 'Anthropologist', 'Senior Anthropologist', 'Cultural Consultant', 'Director of Anthropology'],
+                        links: {
+                            linkedin: 'https://www.linkedin.com/jobs/search/?keywords=anthropologist',
+                            indeed: 'https://www.indeed.com/q-Anthropologist-jobs.html',
+                            glassdoor: 'https://www.glassdoor.com/Job/anthropologist-jobs-SRCH_KO0,14.htm'
+                        }
+                    }
+                ]
+            },
+            'philosophy': {
+                name: 'Philosophy',
+                description: 'Explore fundamental questions about existence, knowledge, and ethics.',
+                careers: [
+                    {
+                        title: 'Philosopher',
+                        description: 'Teach philosophy or apply ethical reasoning in various fields.',
+                        salaryProgression: {
+                            entry: '$50,000 - $70,000',
+                            mid: '$70,000 - $90,000',
+                            senior: '$90,000 - $120,000',
+                            lead: '$120,000 - $150,000+'
+                        },
+                        jobTitles: ['Philosophy Instructor', 'Philosopher', 'Ethics Consultant', 'Professor of Philosophy', 'Department Chair'],
+                        links: {
+                            linkedin: 'https://www.linkedin.com/jobs/search/?keywords=philosopher',
+                            indeed: 'https://www.indeed.com/q-Philosopher-jobs.html',
+                            glassdoor: 'https://www.glassdoor.com/Job/philosopher-jobs-SRCH_KO0,11.htm'
+                        }
+                    }
+                ]
+            },
+            'political-science': {
+                name: 'Political Science',
+                description: 'Analyze political systems, behavior, and public policies.',
+                careers: [
+                    {
+                        title: 'Political Scientist',
+                        description: 'Research political ideas and analyze governments and policies.',
+                        salaryProgression: {
+                            entry: '$70,000 - $90,000',
+                            mid: '$90,000 - $120,000',
+                            senior: '$120,000 - $150,000',
+                            lead: '$150,000 - $200,000+'
+                        },
+                        jobTitles: ['Policy Analyst', 'Political Scientist', 'Senior Political Analyst', 'Political Consultant', 'Director of Policy'],
+                        links: {
+                            linkedin: 'https://www.linkedin.com/jobs/search/?keywords=political%20scientist',
+                            indeed: 'https://www.indeed.com/q-Political-Scientist-jobs.html',
+                            glassdoor: 'https://www.glassdoor.com/Job/political-scientist-jobs-SRCH_KO0,19.htm'
+                        }
+                    }
+                ]
+            },
+            'electrician': {
+                name: 'Electrician',
+                description: 'Install and maintain electrical systems in buildings and facilities.',
+                careers: [
+                    {
+                        title: 'Licensed Electrician',
+                        description: 'Install, maintain, and repair electrical systems.',
+                        salaryProgression: {
+                            entry: '$35,000 - $50,000',
+                            mid: '$50,000 - $65,000',
+                            senior: '$65,000 - $85,000',
+                            lead: '$85,000 - $110,000+'
+                        },
+                        jobTitles: ['Apprentice Electrician', 'Journeyman Electrician', 'Master Electrician', 'Electrical Contractor', 'Electrical Inspector'],
+                        links: {
+                            linkedin: 'https://www.linkedin.com/jobs/search/?keywords=electrician',
+                            indeed: 'https://www.indeed.com/q-Electrician-jobs.html',
+                            glassdoor: 'https://www.glassdoor.com/Job/electrician-jobs-SRCH_KO0,11.htm'
+                        }
+                    }
+                ]
+            },
+            'electrical-technician': {
+                name: 'Electrical Technician',
+                description: 'Support electricians in installing and maintaining electrical equipment.',
+                careers: [
+                    {
+                        title: 'Electrical Technician',
+                        description: 'Test and repair electrical systems and components.',
+                        salaryProgression: {
+                            entry: '$40,000 - $55,000',
+                            mid: '$55,000 - $70,000',
+                            senior: '$70,000 - $90,000',
+                            lead: '$90,000 - $120,000+'
+                        },
+                        jobTitles: ['Junior Electrical Technician', 'Electrical Technician', 'Senior Technician', 'Lead Technician', 'Technical Supervisor'],
+                        links: {
+                            linkedin: 'https://www.linkedin.com/jobs/search/?keywords=electrical%20technician',
+                            indeed: 'https://www.indeed.com/q-Electrical-Technician-jobs.html',
+                            glassdoor: 'https://www.glassdoor.com/Job/electrical-technician-jobs-SRCH_KO0,21.htm'
+                        }
+                    }
+                ]
+            },
+            'plumber': {
+                name: 'Plumber',
+                description: 'Install and repair plumbing systems in buildings.',
+                careers: [
+                    {
+                        title: 'Plumber',
+                        description: 'Handle installation and maintenance of water systems.',
+                        salaryProgression: {
+                            entry: '$40,000 - $55,000',
+                            mid: '$55,000 - $75,000',
+                            senior: '$75,000 - $95,000',
+                            lead: '$95,000 - $120,000+'
+                        },
+                        jobTitles: ['Apprentice Plumber', 'Journeyman Plumber', 'Master Plumber', 'Plumbing Contractor', 'Plumbing Inspector'],
+                        links: {
+                            linkedin: 'https://www.linkedin.com/jobs/search/?keywords=plumber',
+                            indeed: 'https://www.indeed.com/q-Plumber-jobs.html',
+                            glassdoor: 'https://www.glassdoor.com/Job/plumber-jobs-SRCH_KO0,7.htm'
+                        }
+                    }
+                ]
+            },
+            'pipefitter': {
+                name: 'Pipefitter',
+                description: 'Install and maintain pipe systems for industrial applications.',
+                careers: [
+                    {
+                        title: 'Pipefitter',
+                        description: 'Assemble and install piping for fluids and gases.',
+                        salaryProgression: {
+                            entry: '$45,000 - $60,000',
+                            mid: '$60,000 - $80,000',
+                            senior: '$80,000 - $100,000',
+                            lead: '$100,000 - $130,000+'
+                        },
+                        jobTitles: ['Apprentice Pipefitter', 'Journeyman Pipefitter', 'Master Pipefitter', 'Pipefitting Supervisor', 'Project Manager'],
+                        links: {
+                            linkedin: 'https://www.linkedin.com/jobs/search/?keywords=pipefitter',
+                            indeed: 'https://www.indeed.com/q-Pipefitter-jobs.html',
+                            glassdoor: 'https://www.glassdoor.com/Job/pipefitter-jobs-SRCH_KO0,10.htm'
+                        }
+                    }
+                ]
+            },
+            'carpenter': {
+                name: 'Carpenter',
+                description: 'Build and repair wooden structures and fixtures.',
+                careers: [
+                    {
+                        title: 'Carpenter',
+                        description: 'Construct frameworks and buildings using wood.',
+                        salaryProgression: {
+                            entry: '$35,000 - $50,000',
+                            mid: '$50,000 - $65,000',
+                            senior: '$65,000 - $85,000',
+                            lead: '$85,000 - $110,000+'
+                        },
+                        jobTitles: ['Apprentice Carpenter', 'Journeyman Carpenter', 'Master Carpenter', 'Carpentry Supervisor', 'Construction Manager'],
+                        links: {
+                            linkedin: 'https://www.linkedin.com/jobs/search/?keywords=carpenter',
+                            indeed: 'https://www.indeed.com/q-Carpenter-jobs.html',
+                            glassdoor: 'https://www.glassdoor.com/Job/carpenter-jobs-SRCH_KO0,9.htm'
+                        }
+                    }
+                ]
+            },
+            'construction-management': {
+                name: 'Construction Management',
+                description: 'Oversee construction projects from planning to completion.',
+                careers: [
+                    {
+                        title: 'Construction Manager',
+                        description: 'Coordinate construction projects and teams.',
+                        salaryProgression: {
+                            entry: '$60,000 - $80,000',
+                            mid: '$80,000 - $110,000',
+                            senior: '$110,000 - $140,000',
+                            lead: '$140,000 - $180,000+'
+                        },
+                        jobTitles: ['Assistant Project Manager', 'Construction Manager', 'Senior Construction Manager', 'Project Director', 'VP of Construction'],
+                        links: {
+                            linkedin: 'https://www.linkedin.com/jobs/search/?keywords=construction%20manager',
+                            indeed: 'https://www.indeed.com/q-Construction-Manager-jobs.html',
+                            glassdoor: 'https://www.glassdoor.com/Job/construction-manager-jobs-SRCH_KO0,20.htm'
+                        }
+                    }
+                ]
+            },
+            'automotive-technician': {
+                name: 'Automotive Technician',
+                description: 'Repair and maintain vehicles and automotive systems.',
+                careers: [
+                    {
+                        title: 'Automotive Technician',
+                        description: 'Diagnose and fix automotive mechanical issues.',
+                        salaryProgression: {
+                            entry: '$35,000 - $50,000',
+                            mid: '$50,000 - $65,000',
+                            senior: '$65,000 - $85,000',
+                            lead: '$85,000 - $110,000+'
+                        },
+                        jobTitles: ['Apprentice Technician', 'Automotive Technician', 'Senior Technician', 'Shop Foreman', 'Service Manager'],
+                        links: {
+                            linkedin: 'https://www.linkedin.com/jobs/search/?keywords=automotive%20technician',
+                            indeed: 'https://www.indeed.com/q-Automotive-Technician-jobs.html',
+                            glassdoor: 'https://www.glassdoor.com/Job/automotive-technician-jobs-SRCH_KO0,21.htm'
+                        }
+                    }
+                ]
+            },
+            'diesel-mechanic': {
+                name: 'Diesel Mechanic',
+                description: 'Repair and maintain diesel engines in vehicles and equipment.',
+                careers: [
+                    {
+                        title: 'Diesel Mechanic',
+                        description: 'Service heavy-duty vehicles and machinery.',
+                        salaryProgression: {
+                            entry: '$40,000 - $55,000',
+                            mid: '$55,000 - $70,000',
+                            senior: '$70,000 - $90,000',
+                            lead: '$90,000 - $120,000+'
+                        },
+                        jobTitles: ['Apprentice Diesel Mechanic', 'Diesel Mechanic', 'Senior Diesel Mechanic', 'Fleet Manager', 'Shop Supervisor'],
+                        links: {
+                            linkedin: 'https://www.linkedin.com/jobs/search/?keywords=diesel%20mechanic',
+                            indeed: 'https://www.indeed.com/q-Diesel-Mechanic-jobs.html',
+                            glassdoor: 'https://www.glassdoor.com/Job/diesel-mechanic-jobs-SRCH_KO0,15.htm'
+                        }
+                    }
+                ]
+            }
+        };
+
+        // ============= INITIALIZATION =============
+        
+        function init() {
+            loadSavedSessions();
+        }
+
+        function loadSavedSessions() {
+            const sessions = JSON.parse(localStorage.getItem('careerSessions') || '[]');
+            const container = document.getElementById('savedSessionsList');
+            
+            if (sessions.length === 0) {
+                container.innerHTML = '<p style="color: var(--text-secondary); font-size: 14px;">No saved sessions yet</p>';
+                return;
+            }
+
+            container.innerHTML = sessions.map(session => `
+                <div class="session-item" onclick="loadSession('${session.username}')">
+                    <div class="session-name">${session.username}</div>
+                    <div class="session-date">${new Date(session.date).toLocaleDateString()}</div>
+                </div>
+            `).join('');
+        }
+
+        function clearSavedSessions() {
+            if (confirm('Are you sure you want to delete all saved sessions?')) {
+                localStorage.removeItem('careerSessions');
+                loadSavedSessions();
+            }
+        }
+
+        // ============= NAVIGATION FUNCTIONS =============
+        
+        function startAssessment() {
+            hide('heroSection');
+            show('usernameSection');
+            currentStage = 'username';
+        }
+
+        function startNewSession() {
+            currentUser = '';
+            currentStage = 'hero';
+            currentQuestionIndex = 0;
+            answers = {};
+            selectedField = '';
+            selectedMajor = '';
+            fieldResults = [];
+            majorResults = [];
+            
+            document.getElementById('userProfile').classList.add('hidden');
+            document.getElementById('usernameInput').value = '';
+            
+            hideAll();
+            show('heroSection');
+        }
+
+        function submitUsername() {
+            const username = document.getElementById('usernameInput').value.trim();
+            if (!username) {
+                alert('Please enter your name to continue.');
+                return;
+            }
+
+            currentUser = username;
+            document.getElementById('usernameDisplay').textContent = username;
+            document.getElementById('userProfile').classList.remove('hidden');
+
+            // Start field questions
+            hide('usernameSection');
+            show('questionSection');
+            currentStage = 'field-questions';
+            currentQuestionIndex = 0;
+            currentQuestions = fieldQuestions;
+            answers = {};
+            
+            displayQuestion();
+        }
+
+        // ============= QUESTION DISPLAY & NAVIGATION =============
+        
+        function displayQuestion() {
+            const question = currentQuestions[currentQuestionIndex];
+            
+            // Update progress
+            const progress = ((currentQuestionIndex + 1) / currentQuestions.length) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+            document.getElementById('progressText').textContent = `Question ${currentQuestionIndex + 1} of ${currentQuestions.length}`;
+
+            // Display question
+            document.getElementById('questionNumber').textContent = `Question ${currentQuestionIndex + 1}`;
+            document.getElementById('questionText').textContent = question.text;
+
+            // Display options
+            const optionsContainer = document.getElementById('optionsContainer');
+            optionsContainer.innerHTML = question.options.map((option, index) => `
+                <button class="option-button ${answers[question.id] === index ? 'selected' : ''}" 
+                        onclick="selectOption(${index})">
+                    ${option.text}
+                </button>
+            `).join('');
+
+            // Update navigation buttons
+            document.getElementById('prevBtn').style.display = currentQuestionIndex > 0 ? 'block' : 'none';
+            document.getElementById('nextBtn').textContent = 
+                currentQuestionIndex === currentQuestions.length - 1 ? 'See Results' : 'Next';
+        }
+
+        function selectOption(index) {
+            const question = currentQuestions[currentQuestionIndex];
+            answers[question.id] = index;
+            displayQuestion();
+        }
+
+        function nextQuestion() {
+            const question = currentQuestions[currentQuestionIndex];
+            if (answers[question.id] === undefined) {
+                alert('Please select an answer before continuing.');
+                return;
+            }
+
+            if (currentQuestionIndex < currentQuestions.length - 1) {
+                currentQuestionIndex++;
+                displayQuestion();
+            } else {
+                // All questions answered
+                if (currentStage === 'field-questions') {
+                    calculateFieldResults();
+                } else if (currentStage === 'major-questions') {
+                    calculateMajorResults();
+                }
+            }
+        }
+
+        function previousQuestion() {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                displayQuestion();
+            }
+        }
+
+        // ============= RESULTS CALCULATION =============
+        
+        function calculateFieldResults() {
+            const scores = {};
+            
+            fieldQuestions.forEach(question => {
+                const answerIndex = answers[question.id];
+                const selectedOption = question.options[answerIndex];
+                
+                Object.entries(selectedOption.fields).forEach(([field, points]) => {
+                    scores[field] = (scores[field] || 0) + points;
+                });
+            });
+
+            fieldResults = Object.entries(scores)
+                .map(([field, score]) => ({ field, score }))
+                .sort((a, b) => b.score - a.score)
+                .slice(0, 3);
+
+            displayFieldResults();
+        }
+
+        function displayFieldResults() {
+            hide('questionSection');
+            const section = document.getElementById('resultsSection');
+            show('resultsSection');
+            currentStage = 'field-results';
+
+            // TRIGGER CELEBRATION!
+            celebrateResults();
+
+            const fieldDescriptions = {
+                'Business': 'Business professionals manage organizations, finances, and strategic operations.',
+                'STEM': 'STEM careers involve science, technology, engineering, and mathematics.',
+                'Healthcare': 'Healthcare professionals provide medical care and improve patient wellbeing.',
+                'Arts': 'Arts professionals create visual, performing, and digital creative works.',
+                'Education': 'Education professionals teach and develop learning programs.',
+                'Humanities': 'Humanities professionals study culture, history, and human behavior.',
+                'Trades': 'Skilled trades involve hands-on work in construction, electrical, and mechanical fields.'
+            };
+
+            let html = `
+                <div class="results-container">
+                    <div class="results-header">
+                        <h2>🎯 Your Top Career Fields</h2>
+                        <p>Based on your answers, here are the fields that match your interests best. Select one to explore specific majors.</p>
+                    </div>
+            `;
+
+            fieldResults.forEach((result, index) => {
+                const matchPercent = Math.round((result.score / fieldResults[0].score) * 100);
+                const reasons = getFieldReasons(result.field);
+                
+                html += `
+                    <div class="result-card" onclick="selectField('${result.field}')">
+                        <div class="result-rank">#${index + 1} Match</div>
+                        <div class="result-title">${result.field}</div>
+                        <div class="result-match">${matchPercent}% Match</div>
+                        <div class="result-description">${fieldDescriptions[result.field]}</div>
+                        <div class="result-reasons">
+                            <h4>Why this field matches you:</h4>
+                            <ul>
+                                ${reasons.map(reason => `<li>${reason}</li>`).join('')}
+                            </ul>
+                        </div>
+                    </div>
+                `;
+            });
+
+            html += '</div>';
+            section.innerHTML = html;
+        }
+
+        function getFieldReasons(field) {
+            const reasonsMap = {
+                'Business': [
+                    'You show strong analytical and strategic thinking skills',
+                    'You\'re interested in financial growth and organizational success',
+                    'You enjoy working with data and making informed decisions'
+                ],
+                'STEM': [
+                    'You have a logical and problem-solving mindset',
+                    'You\'re interested in technology and innovation',
+                    'You enjoy working with systems and technical challenges'
+                ],
+                'Healthcare': [
+                    'You have a strong desire to help people directly',
+                    'You\'re interested in medical science and patient care',
+                    'You value making a positive impact on others\' wellbeing'
+                ],
+                'Education': [
+                    'You enjoy sharing knowledge and helping others learn',
+                    'You have patience and strong communication skills',
+                    'You find fulfillment in developing others\' potential'
+                ],
+                'Trades': [
+                    'You prefer hands-on, practical work',
+                    'You enjoy building, fixing, and creating tangible results',
+                    'You value job security and skilled craftsmanship'
+                ],
+                'Humanities': [
+                    'You\'re interested in culture, history, and human behavior',
+                    'You have strong critical thinking and analytical skills',
+                    'You enjoy research, writing, and intellectual exploration'
+                ],
+                'Arts': [
+                    'You have a creative mindset and artistic vision',
+                    'You enjoy bringing ideas to life through artistic mediums',
+                    'You value aesthetics, design, and creative innovation'
+                ]
+            };
+
+            return reasonsMap[field] || ['This field aligns with your interests and strengths'];
+        }
+
+        function selectField(field) {
+            selectedField = field;
+            
+            // Start major questions
+            hide('resultsSection');
+            show('questionSection');
+            currentStage = 'major-questions';
+            currentQuestionIndex = 0;
+            currentQuestions = majorQuestions[field] || [];
+            answers = {};
+            
+            if (currentQuestions.length === 0) {
+                alert('Major questions not available for this field yet. Please select another field.');
+                displayFieldResults();
+                return;
+            }
+            
+            displayQuestion();
+        }
+
+        function calculateMajorResults() {
+            const scores = {};
+            
+            currentQuestions.forEach(question => {
+                const answerIndex = answers[question.id];
+                const selectedOption = question.options[answerIndex];
+                
+                Object.entries(selectedOption.majors).forEach(([major, points]) => {
+                    scores[major] = (scores[major] || 0) + points;
+                });
+            });
+
+            majorResults = Object.entries(scores)
+                .map(([majorId, score]) => {
+                    const major = careerDatabase[majorId];
+                    return {
+                        majorId,
+                        name: major?.name || majorId,
+                        description: major?.description || '',
+                        careers: major?.careers || [],
+                        score
+                    };
+                })
+                .sort((a, b) => b.score - a.score)
+                .slice(0, 5);
+
+            displayMajorResults();
+        }
+
+        function displayMajorResults() {
+            hide('questionSection');
+            const section = document.getElementById('resultsSection');
+            show('resultsSection');
+            currentStage = 'major-results';
+
+            // TRIGGER CELEBRATION AGAIN!
+            celebrateResults();
+
+            let html = `
+                <div class="results-container">
+                    <div class="results-header">
+                        <h2>🎓 Your Recommended Majors</h2>
+                        <p>Click on any major below to explore career opportunities, salary expectations, and more details.</p>
+                    </div>
+            `;
+
+            majorResults.forEach((major, index) => {
+                const matchPercent = Math.round((major.score / majorResults[0].score) * 100);
+                
+                html += `
+                    <div class="result-card" onclick="showMajorCareers('${major.majorId}')">
+                        <div class="result-rank">#${index + 1} Match</div>
+                        <div class="result-title">${major.name}</div>
+                        <div class="result-match">${matchPercent}% Match</div>
+                        <div class="result-description">${major.description}</div>
+                        <div style="margin-top: 20px; color: var(--primary-color); font-weight: 600;">
+                            Click to explore ${major.careers?.length || 0} career paths →
+                        </div>
+                    </div>
+                `;
+            });
+
+            html += `
+                    <div style="text-align: center; margin-top: 40px;">
+                        <button class="btn-secondary" onclick="saveAndFinish()">Save My Results</button>
+                    </div>
+                </div>
+            `;
+
+            section.innerHTML = html;
+        }
+
+        function showMajorCareers(majorId) {
+            selectedMajor = majorId;
+            const major = careerDatabase[majorId];
+            
+            if (!major || !major.careers) {
+                alert('Career information not available for this major yet.');
+                return;
+            }
+
+            hide('resultsSection');
+            const section = document.getElementById('careerDetailsSection');
+            show('careerDetailsSection');
+
+            let html = `
+                <div class="results-container">
+                    <a class="back-button" onclick="backToMajorResults()">← Back to Major Results</a>
+                    
+                    <div class="results-header">
+                        <h2>💼 ${major.name} Careers</h2>
+                        <p>${major.description}</p>
+                    </div>
+            `;
+
+            major.careers.forEach((career, index) => {
+                html += `
+                    <div class="career-details">
+                        <div class="career-header">
+                            <div class="career-title">${career.title}</div>
+                            <div class="career-subtitle">${career.description}</div>
+                        </div>
+
+                        <div class="career-section">
+                            <h3>💰 Salary Progression</h3>
+                            <div class="salary-timeline">
+                                <div class="salary-stage">
+                                    <span class="salary-stage-name">Entry Level (0-2 years)</span>
+                                    <span class="salary-stage-amount">${career.salaryProgression.entry}</span>
+                                </div>
+                                <div class="salary-stage">
+                                    <span class="salary-stage-name">Mid-Level (3-5 years)</span>
+                                    <span class="salary-stage-amount">${career.salaryProgression.mid}</span>
+                                </div>
+                                <div class="salary-stage">
+                                    <span class="salary-stage-name">Senior Level (6-10 years)</span>
+                                    <span class="salary-stage-amount">${career.salaryProgression.senior}</span>
+                                </div>
+                                <div class="salary-stage">
+                                    <span class="salary-stage-name">Lead/Director (10+ years)</span>
+                                    <span class="salary-stage-amount">${career.salaryProgression.lead}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="career-section">
+                            <h3>📋 Possible Job Titles</h3>
+                            <div class="job-titles-list">
+                                ${career.jobTitles.map(title => `
+                                    <span class="job-title-tag">${title}</span>
+                                `).join('')}
+                            </div>
+                        </div>
+
+                        <div class="career-section">
+                            <h3>🔗 Find Job Opportunities</h3>
+                            <div class="external-links">
+                                <a href="${career.links.linkedin}" target="_blank" class="external-link">
+                                    Search on LinkedIn
+                                </a>
+                                <a href="${career.links.indeed}" target="_blank" class="external-link">
+                                    Search on Indeed
+                                </a>
+                                <a href="${career.links.glassdoor}" target="_blank" class="external-link">
+                                    View on Glassdoor
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            html += `
+                    <div style="text-align: center; margin-top: 40px;">
+                        <button class="btn-primary" onclick="backToMajorResults()">Explore Other Majors</button>
+                        <button class="btn-secondary" onclick="saveAndFinish()" style="margin-left: 15px;">Save My Results</button>
+                    </div>
+                </div>
+            `;
+
+            section.innerHTML = html;
+        }
+
+        function backToMajorResults() {
+            hide('careerDetailsSection');
+            displayMajorResults();
+        }
+
+        function saveAndFinish() {
+            const sessionData = {
+                username: currentUser,
+                date: new Date().toISOString(),
+                selectedField,
+                selectedMajor,
+                fieldResults,
+                majorResults,
+                fieldAnswers: answers
+            };
+
+            let sessions = JSON.parse(localStorage.getItem('careerSessions') || '[]');
+            
+            // Remove old session with same username
+            sessions = sessions.filter(s => s.username !== currentUser);
+            
+            // Add new session
+            sessions.unshift(sessionData);
+            
+            // Keep only last 10 sessions
+            sessions = sessions.slice(0, 10);
+            
+            localStorage.setItem('careerSessions', JSON.stringify(sessions));
+            localStorage.setItem('lastUser', currentUser);
+            
+            loadSavedSessions();
+            
+            alert(`✅ Your career assessment has been saved, ${currentUser}! You can access it anytime from the sidebar.`);
+        }
+
+        function loadSession(username) {
+            const sessions = JSON.parse(localStorage.getItem('careerSessions') || '[]');
+            const session = sessions.find(s => s.username === username);
+            
+            if (session) {
+                loadSessionData(session);
+            }
+        }
+
+        function loadSessionData(session) {
+            currentUser = session.username;
+            selectedField = session.selectedField;
+            selectedMajor = session.selectedMajor;
+            fieldResults = session.fieldResults;
+            majorResults = session.majorResults;
+            
+            document.getElementById('userProfile').classList.remove('hidden');
+            document.getElementById('usernameDisplay').textContent = currentUser;
+            
+            hideAll();
+            displayMajorResults();
+        }
+
+        // ============= UTILITY FUNCTIONS =============
+        
+        function hide(id) {
+            document.getElementById(id).classList.add('hidden');
+        }
+
+        function show(id) {
+            document.getElementById(id).classList.remove('hidden');
+        }
+
+        function hideAll() {
+            ['heroSection', 'usernameSection', 'questionSection', 'resultsSection', 'careerDetailsSection'].forEach(hide);
+        }
+
+        // ============= INITIALIZE APP =============
+        
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
